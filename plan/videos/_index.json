@@ -1,0 +1,228 @@
+{
+  "produced": 37,
+  "note": "Ролик = что сказать ⊕ как грамотно рассказать: каждая сцена несёт конспект (под запись), дух просвещения (зачем/как смотреть) и рассказ (план/темп/монтаж). Предметные ролики наполняются конспектом; полиарт — пространством и камерами (ноу-хау, доводится вручную).",
+  "videos": [
+    {
+      "id": "k01",
+      "engine": "chalkboard",
+      "filled": 7,
+      "len": 37
+    },
+    {
+      "id": "k02",
+      "engine": "chalkboard",
+      "filled": 7,
+      "len": 72
+    },
+    {
+      "id": "k03",
+      "engine": "markerboard",
+      "filled": 10,
+      "len": 38
+    },
+    {
+      "id": "k04",
+      "engine": "chalkboard",
+      "filled": 5,
+      "len": 26
+    },
+    {
+      "id": "m02",
+      "engine": "markerboard",
+      "filled": 9,
+      "len": 38
+    },
+    {
+      "id": "f01",
+      "engine": "chalkboard",
+      "filled": 11,
+      "len": 38
+    },
+    {
+      "id": "c03",
+      "engine": "cinema",
+      "filled": 10,
+      "len": 38
+    },
+    {
+      "id": "k05",
+      "engine": "chalkboard",
+      "filled": 3,
+      "len": 18
+    },
+    {
+      "id": "b02",
+      "engine": "corkboard",
+      "filled": 11,
+      "len": 42
+    },
+    {
+      "id": "f02",
+      "engine": "chalkboard",
+      "filled": 10,
+      "len": 42
+    },
+    {
+      "id": "c04",
+      "engine": "cinema",
+      "filled": 10,
+      "len": 38
+    },
+    {
+      "id": "k06",
+      "engine": "chalkboard",
+      "filled": 3,
+      "len": 18
+    },
+    {
+      "id": "m03",
+      "engine": "markerboard",
+      "filled": 10,
+      "len": 38
+    },
+    {
+      "id": "f03",
+      "engine": "chalkboard",
+      "filled": 11,
+      "len": 38
+    },
+    {
+      "id": "b03",
+      "engine": "corkboard",
+      "filled": 11,
+      "len": 42
+    },
+    {
+      "id": "k07",
+      "engine": "chalkboard",
+      "filled": 4,
+      "len": 26
+    },
+    {
+      "id": "c05",
+      "engine": "cinema",
+      "filled": 10,
+      "len": 38
+    },
+    {
+      "id": "k08",
+      "engine": "chalkboard",
+      "filled": 4,
+      "len": 22
+    },
+    {
+      "id": "m04",
+      "engine": "markerboard",
+      "filled": 10,
+      "len": 38
+    },
+    {
+      "id": "f04",
+      "engine": "chalkboard",
+      "filled": 11,
+      "len": 38
+    },
+    {
+      "id": "b04",
+      "engine": "corkboard",
+      "filled": 10,
+      "len": 38
+    },
+    {
+      "id": "k09",
+      "engine": "chalkboard",
+      "filled": 4,
+      "len": 22
+    },
+    {
+      "id": "c06",
+      "engine": "cinema",
+      "filled": 10,
+      "len": 38
+    },
+    {
+      "id": "f05",
+      "engine": "chalkboard",
+      "filled": 11,
+      "len": 38
+    },
+    {
+      "id": "m05",
+      "engine": "markerboard",
+      "filled": 10,
+      "len": 38
+    },
+    {
+      "id": "k10",
+      "engine": "chalkboard",
+      "filled": 4,
+      "len": 22
+    },
+    {
+      "id": "b05",
+      "engine": "corkboard",
+      "filled": 13,
+      "len": 46
+    },
+    {
+      "id": "f06",
+      "engine": "chalkboard",
+      "filled": 11,
+      "len": 38
+    },
+    {
+      "id": "c07",
+      "engine": "cinema",
+      "filled": 10,
+      "len": 34
+    },
+    {
+      "id": "k11",
+      "engine": "chalkboard",
+      "filled": 4,
+      "len": 22
+    },
+    {
+      "id": "b06",
+      "engine": "corkboard",
+      "filled": 12,
+      "len": 46
+    },
+    {
+      "id": "k12",
+      "engine": "chalkboard",
+      "filled": 3,
+      "len": 22
+    },
+    {
+      "id": "c08",
+      "engine": "cinema",
+      "filled": 10,
+      "len": 38
+    },
+    {
+      "id": "c01_kinozal",
+      "engine": "chalkboard",
+      "filled": 13,
+      "len": 160
+    },
+    {
+      "id": "c02_kinozal",
+      "engine": "cinema",
+      "filled": 11,
+      "len": 150
+    },
+    {
+      "id": "m01_plan",
+      "engine": "markerboard",
+      "filled": 10,
+      "len": 150
+    },
+    {
+      "id": "b01_ideas",
+      "engine": "corkboard",
+      "filled": 9,
+      "len": 160
+    }
+  ]
+}
