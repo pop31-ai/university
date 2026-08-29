@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Походный конспект · доски по специфике</title>
+<style>
+  * { box-sizing:border-box; }
+  body { margin:0; background:#141710; color:#eef0e6;
+         font-family:"Segoe UI", Arial, sans-serif; }
+  .top { display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+         padding:12px 16px; border-bottom:1px solid #2a3320; }
+  .top h1 { font-size:16px; margin:0; letter-spacing:1px; color:#d9e8b8; }
+  .top .meta { color:#a5b58a; font-size:12px; }
+  .clock { margin-left:auto; font-size:15px; color:#8aa06a; font-variant-numeric:tabular-nums; }
+  .boardwrap { display:flex; justify-content:center; padding:16px; }
+  #board { max-width:min(92vw, 980px); width:100%; height:auto;
+           box-shadow:0 16px 50px rgba(0,0,0,.65); border-radius:8px; background:#000; }
+  .bar { display:flex; gap:8px; flex-wrap:wrap; justify-content:center;
+         padding:6px 14px 4px; }
+  .chip { background:#20271a; color:#d9e8b8; border:1px solid #38462c; border-radius:20px;
+          padding:7px 12px; cursor:pointer; font-size:12px; }
+  .chip.on { border-color:#8aa06a; background:#28351f; }
+  .ctrl { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; align-items:center;
+          padding:8px 14px 16px; }
+  .btn { background:#2a3320; color:#d9e8b8; border:1px solid #46553a; border-radius:20px;
+         padding:8px 14px; cursor:pointer; font-size:13px; }
+  .btn:hover { border-color:#8aa06a; }
+  .speed { display:inline-flex; gap:3px; align-items:center; background:#20271a;
+           border:1px solid #38462c; border-radius:20px; padding:3px 6px; }
+  .sbtn { background:transparent; color:#a5b58a; border:1px solid transparent; border-radius:14px;
+          padding:4px 8px; cursor:pointer; font-size:12px; }
+  .sbtn:hover { color:#d9e8b8; }
+  .sbtn.cur { background:#38462c; color:#d9e8b8; border-color:#8aa06a; }
+  #speedTag { border:none; background:transparent; padding:4px; color:#8aa06a; }
+  select { background:#20271a; color:#eef0e6; border:1px solid #38462c; border-radius:8px;
+           padding:5px 8px; font-size:13px; }
+  label.fld { color:#a5b58a; font-size:12px; }
+  .foot { text-align:center; color:#7a8a62; font-size:11px; padding:10px 14px 22px; }
+  .foot code { background:#2a3320; padding:1px 5px; border-radius:4px; }
+</style>
+</head>
+<body>
+  <div class="top">
+    <h1>#ВЫЛАЗКА_КОНСПЕКТ</h1>
+    <span class="meta" id="meta">—</span>
+    <span class="clock" id="clock">00:00</span>
+  </div>
+
+  <div class="boardwrap">
+    <canvas id="board" width="960" height="540"></canvas>
+  </div>
+
+  <div class="bar" id="engineBar"></div>
+
+  <div class="ctrl">
+    <label class="fld">занятие:
+      <select id="pick"></select>
+    </label>
+    <button class="btn" id="bReplay">↻ переиграть</button>
+    <button class="btn" id="bPause">⏸ пауза</button>
+    <span class="chip" id="engineTag" style="cursor:default"></span>
+    <span class="speed" id="speedBar" title="саморегулирование темпа (медленнее/быстрее)">
+      <button class="sbtn" data-s="0.25">×0.25</button>
+      <button class="sbtn" data-s="1">×1</button>
+      <button class="sbtn" data-s="4">×4</button>
+      <button class="sbtn" data-s="16">×16</button>
+      <span class="chip" id="speedTag">×1</span>
+    </span>
+  </div>
+
+  <div class="foot">
+    походный плеер: доски по специфике (мел / маркер / пробка / кино) ·
+    бесконечная рулонная лента · облачко-комментарий ·
+    <code>?sessions=id&engine=chalkboard|markerboard|corkboard|cinema</code>
+  </div>
+
+  <script>
+    var ENGINES = {
+      chalkboard:  { file: '../engine/chalkboard.js',  win: 'Chalk' },
+      markerboard: { file: '../engine/markerboard.js', win: 'Marker' },
+      corkboard:   { file: '../engine/corkboard.js',   win: 'Cork' },
+      cinema:      { file: '../engine/cinema.js',      win: 'Cinema' },
+      glass:       { file: '../engine/glassboard.js',  win: 'Glass' },
+      led:         { file: '../engine/neo.js',         win: 'LED' },
+      neo:         { file: '../engine/neo.js',         win: 'Neo' },
+      wood:        { file: '../engine/neo.js',         win: 'Wood' },
+      brick:       { file: '../engine/neo.js',         win: 'Brick' },
+      overhead:    { file: '../engine/neo.js',         win: 'Overhead' }
+    };
+    // реестр занятий: id -> { file, engine }  (полный семестр 16 нед × 2 пары)
+    var SESSIONS = {
+      k01: { file: 'sessions/k01.json', engine: 'chalkboard', label: 'нед1 п1 · Введение · Что такое производная (скорость)' },
+      k02: { file: 'sessions/k02.json', engine: 'chalkboard', label: 'нед1 п1 · Вывод производной из определения (пошагово)' },
+      f01: { file: 'sessions/f01.json', engine: 'chalkboard', label: 'нед3 п1 · Физика 1 · Кинематика: скорость и ускорение' },
+      c01: { file: 'sessions/c01_kinozal.json', engine: 'chalkboard', label: 'архив · кинозал (мел)' },
+      c02: { file: 'sessions/c02_kinozal.json', engine: 'cinema', label: 'кинозал · премьера (слайд-шоу)' },
+      m01: { file: 'sessions/m01_plan.json', engine: 'markerboard', label: 'метод-кабинет · план' },
+      b01: { file: 'sessions/b01_ideas.json', engine: 'corkboard', label: 'пробка · карта идей' },
+      k03: { file: 'sessions/k03.json', engine: 'markerboard', label: 'нед1 п2 · Полиарт 1 · Как устроен конспект-лекция' },
+      k04: { file: 'sessions/k04.json', engine: 'chalkboard', label: 'нед2 п1 · Правила дифференцирования (сумма, произведение)' },
+      m02: { file: 'sessions/m02.json', engine: 'markerboard', label: 'нед2 п2 · Полиарт 2 · Карта целей недели' },
+      c03: { file: 'sessions/c03.json', engine: 'cinema', label: 'нед3 п2 · Полиарт 3 · Премьера первого эпизода' },
+      k05: { file: 'sessions/k05.json', engine: 'chalkboard', label: 'нед4 п1 · Геометрический смысл производной' },
+      b02: { file: 'sessions/b02.json', engine: 'corkboard', label: 'нед4 п2 · Полиарт 4 · Карта идей: связать понятия' },
+      f02: { file: 'sessions/f02.json', engine: 'chalkboard', label: 'нед5 п1 · Физика 2 · Свободное падение (опыт → закон)' },
+      c04: { file: 'sessions/c04.json', engine: 'cinema', label: 'нед5 п2 · Полиарт 5 · Кат-сцены опыта' },
+      k06: { file: 'sessions/k06.json', engine: 'chalkboard', label: 'нед6 п1 · Производная сложной функции (цепное правило)' },
+      m03: { file: 'sessions/m03.json', engine: 'markerboard', label: 'нед6 п2 · Полиарт 6 · Метод-карта: сеть правил' },
+      f03: { file: 'sessions/f03.json', engine: 'chalkboard', label: 'нед7 п1 · Физика 3 · Динамика: закон Ньютона' },
+      b03: { file: 'sessions/b03.json', engine: 'corkboard', label: 'нед7 п2 · Полиарт 7 · Карта проекта-серии' },
+      k07: { file: 'sessions/k07.json', engine: 'chalkboard', label: 'нед8 п1 · Рубежный контроль 1 · Производная' },
+      c05: { file: 'sessions/c05.json', engine: 'cinema', label: 'нед8 п2 · Полиарт 8 · Итог первой половины' },
+      k08: { file: 'sessions/k08.json', engine: 'chalkboard', label: 'нед9 п1 · Вторая производная: выпуклость и точки перегиба' },
+      m04: { file: 'sessions/m04.json', engine: 'markerboard', label: 'нед9 п2 · Полиарт 9 · Карта понятий второй половины' },
+      f04: { file: 'sessions/f04.json', engine: 'chalkboard', label: 'нед10 п1 · Физика 4 · Работа и энергия' },
+      b04: { file: 'sessions/b04.json', engine: 'corkboard', label: 'нед10 п2 · Полиарт 10 · «Энергия vs производная»' },
+      k09: { file: 'sessions/k09.json', engine: 'chalkboard', label: 'нед11 п1 · Применение: поиск экстремумов' },
+      c06: { file: 'sessions/c06.json', engine: 'cinema', label: 'нед11 п2 · Полиарт 11 · Как «взять производную»' },
+      f05: { file: 'sessions/f05.json', engine: 'chalkboard', label: 'нед12 п1 · Физика 5 · Законы сохранения' },
+      m05: { file: 'sessions/m05.json', engine: 'markerboard', label: 'нед12 п2 · Полиарт 12 · Обобщающая схема' },
+      k10: { file: 'sessions/k10.json', engine: 'chalkboard', label: 'нед13 п1 · Эскиз графика по первой и второй производной' },
+      b05: { file: 'sessions/b05.json', engine: 'corkboard', label: 'нед13 п2 · Полиарт 13 · Шаблон эпизода' },
+      f06: { file: 'sessions/f06.json', engine: 'chalkboard', label: 'нед14 п1 · Физика 6 · Колебания (гармонический осциллятор)' },
+      c07: { file: 'sessions/c07.json', engine: 'cinema', label: 'нед14 п2 · Полиарт 14 · «Ритм и производная»' },
+      k11: { file: 'sessions/k11.json', engine: 'chalkboard', label: 'нед15 п1 · Повторение всего курса' },
+      b06: { file: 'sessions/b06.json', engine: 'corkboard', label: 'нед15 п2 · Полиарт 15 · Сборка своей серии' },
+      k12: { file: 'sessions/k12.json', engine: 'chalkboard', label: 'нед16 п1 · Рубежный контроль 2 · Итог' },
+      c08: { file: 'sessions/c08.json', engine: 'cinema', label: 'нед16 п2 · Полиарт 16 · Премьера твоей серии' },
+    };
+
+    var pick = document.getElementById('pick');
+    var canvas = document.getElementById('board');
+    var ctrl = null, playing = true;
+
+    function fmt(t){ var m=Math.floor(t/60), s=Math.floor(t%60);
+      return ('0'+m).slice(-2)+':'+('0'+s).slice(-2); }
+
+    Object.keys(SESSIONS).forEach(function(id){
+      var o = document.createElement('option');
+      o.value = id; o.textContent = SESSIONS[id].label;
+      pick.appendChild(o);
+    });
+
+    function loadEngine(name, cb){
+      var e = ENGINES[name];
+      if (!e) return cb();
+      if (window[e.win]) return cb();
+      var sc = document.createElement('script');
+      sc.src = e.file;
+      sc.onload = function(){ cb(); };
+      document.head.appendChild(sc);
+    }
+
+    function currentWin(name){ return ENGINES[name] && window[ENGINES[name].win]; }
+
+    function start(id, engineName){
+      var r = SESSIONS[id];
+      var eName = engineName || r.engine;
+      var e = ENGINES[eName];
+      loadEngine(eName, function(){
+        var runner = currentWin(eName);
+        if (!runner) { document.getElementById('meta').textContent='нет движка '+eName; return; }
+        fetch(r.file).then(function(res){ return res.json(); })
+          .then(function(ss){
+            ss = JSON.parse(JSON.stringify(ss));
+            ss.style = Object.assign({}, ss.style, { type: (e&&e.tag)||undefined });
+            document.getElementById('engineTag').textContent = e ? eName : eName;
+            document.getElementById('meta').textContent =
+              (ss.room && ss.room.title ? ss.room.title + ' · ' : '') +
+              (ss.session.schedule||'') + ' · ' + ss.session.title + ' · ' +
+              'движок ' + eName;
+            ctrl = runner.play(canvas, ss, { w:960, h:540 });
+            document.getElementById('bPause').textContent = '⏸ пауза';
+            playing = true;
+          })
+          .catch(function(err){ document.getElementById('meta').textContent='ошибка: '+err.message; });
+      });
+    }
+
+    pick.onchange = function(){ start(pick.value); };
+    document.getElementById('bReplay').onclick = function(){ ctrl && ctrl.seek(0); };
+    document.getElementById('bPause').onclick = function(){
+      if (!ctrl) return;
+      playing = !playing;
+      this.textContent = playing ? '⏸ пауза' : '▶ играть';
+      playing ? ctrl.resume() : ctrl.pause();
+    };
+    setInterval(function(){ if (ctrl) document.getElementById('clock').textContent = fmt(ctrl._t); }, 250);
+
+    // саморегулирование темпа: кнопки скорости
+    var speedTag = document.getElementById('speedTag');
+    document.querySelectorAll('#speedBar .sbtn').forEach(function(b){
+      b.onclick = function(){
+        var m = parseFloat(b.getAttribute('data-s'));
+        if (ctrl && ctrl.setSpeed) ctrl.setSpeed(m);
+        speedTag.textContent = '×' + m;
+        document.querySelectorAll('#speedBar .sbtn').forEach(function(x){ x.classList.remove('cur'); });
+        b.classList.add('cur');
+      };
+    });
+
+    // старт по параметрам
+    var q = new URLSearchParams(location.search);
+    var startId = q.get('sessions') || 'k01';
+    var startEngine = q.get('engine') || null;
+    if (SESSIONS[startId]) pick.value = startId;
+    start(startId, startEngine);
+  </script>
+</body>
+</html>

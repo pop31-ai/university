@@ -1,0 +1,64 @@
+{
+  "session": {
+    "id": "f01",
+    "title": "Занятие · Эксперимент: свободное падение",
+    "schedule": "неделя 1 · лабораторная (пара 2)",
+    "duration": 150,
+    "teacher": "🧑‍🔬 доцент Весов",
+    "style": {
+      "bg": "#245a2a",
+      "frame": "#5a3a20",
+      "rail": "#6b4a2a",
+      "chalk": "#f4f4f0",
+      "accent": "#ffd966",
+      "white": "#ffffff",
+      "blue": "#b8dcff",
+      "green": "#c8f5c8",
+      "red": "#ffb4a8"
+    }
+  },
+  "room": { "kind": "lab", "title": "Лаборатория физики · опыт" },
+  "strokes": [
+    { "t": 0,   "dur": 3,  "kind": "note",  "x": 40,  "y": 24, "s": "Эксперимент: падающее тело. Не верим учебнику — измеряем.", "font": "bold 22px \"Segoe UI\"", "color": "#ffffff" },
+    { "t": 5,   "dur": 2,  "kind": "cloud", "x": 700, "y": 20, "s": "установка: грузик + линейка" },
+
+    { "t": 8,   "dur": 3,  "kind": "line",  "from": [320, 80], "to": [320, 420], "color": "#ffffff", "width": 3 },
+    { "t": 12,  "dur": 2,  "kind": "text",  "x": 60,  "y": 100, "s": "линейка h = 2 м", "font": "bold 20px \"Segoe UI\"", "color": "#b8dcff" },
+    { "t": 15,  "dur": 2,  "kind": "text",  "x": 60,  "y": 140, "s": "шарик: старт на высоте 2 м", "font": "bold 20px \"Segoe UI\"", "color": "#c8f5c8" },
+    { "t": 19,  "dur": 2,  "kind": "box",   "x": 40,  "y": 90,  "w": 320, "h": 70, "color": "#b8dcff" },
+
+    { "t": 24,  "dur": 2,  "kind": "cloud", "x": 520, "y": 90, "s": "отпускаем — секундомер" },
+    { "t": 27,  "dur": 3,  "kind": "note",  "x": 40,  "y": 200, "s": "Измеряем: время и пройденный путь", "color": "#ffd966" },
+
+    { "t": 32,  "dur": 2,  "kind": "grid",  "x": 60,  "y": 250, "cols": 2, "rows": 5, "cw": 120, "ch": 26, "color": "#f4f4f0" },
+    { "t": 40,  "dur": 2,  "kind": "text",  "x": 70,  "y": 256, "s": "t, с", "font": "bold 18px \"Segoe UI\"", "color": "#b8dcff" },
+    { "t": 42,  "dur": 2,  "kind": "text",  "x": 190, "y": 256, "s": "h, м", "font": "bold 18px \"Segoe UI\"", "color": "#b8dcff" },
+
+    { "t": 45,  "dur": 1.5,"kind": "text",  "x": 78,  "y": 286, "s": "0.3", "font": "bold 20px \"Segoe UI\"" },
+    { "t": 47,  "dur": 1.5,"kind": "text",  "x": 198, "y": 286, "s": "0.44", "font": "bold 20px \"Segoe UI\"" },
+    { "t": 49,  "dur": 1.5,"kind": "text",  "x": 78,  "y": 312, "s": "0.5", "font": "bold 20px \"Segoe UI\"" },
+    { "t": 51,  "dur": 1.5,"kind": "text",  "x": 198, "y": 312, "s": "1.25", "font": "bold 20px \"Segoe UI\"" },
+    { "t": 53,  "dur": 1.5,"kind": "text",  "x": 78,  "y": 338, "s": "0.6", "font": "bold 20px \"Segoe UI\"" },
+    { "t": 55,  "dur": 1.5,"kind": "text",  "x": 198, "y": 338, "s": "1.80", "font": "bold 20px \"Segoe UI\"" },
+
+    { "t": 58,  "dur": 2,  "kind": "cloud", "x": 430, "y": 300, "s": "h растёт не линейно с t — квадратично" },
+    { "t": 62,  "dur": 3,  "kind": "note",  "x": 420, "y": 250, "s": "Отношение h/t² одинаково! ≈ 5 м/с²", "color": "#ffd966" },
+
+    { "t": 68,  "dur": 2.5,"kind": "ul",    "x": 420, "y": 285, "w": 280, "color": "#ffd966" },
+
+    { "t": 74,  "dur": 3,  "kind": "erase", "x": 40, "y": 230, "w": 440, "h": 160 },
+
+    { "t": 82,  "dur": 3,  "kind": "note",  "x": 40,  "y": 250, "s": "Вывод закона из данных эксперимента", "color": "#c8f5c8" },
+    { "t": 87,  "dur": 4,  "kind": "text",  "x": 50,  "y": 300, "s": "h = g·t² / 2", "font": "bold 30px \"Segoe UI\"" },
+
+    { "t": 92,  "dur": 2,  "kind": "cloud", "x": 250, "y": 340, "s": "из h/t² = const находим g ≈ 9.8" },
+    { "t": 96,  "dur": 3,  "kind": "ul",    "x": 50,  "y": 335, "w": 170, "color": "#ffd966" },
+    { "t": 100, "dur": 4,  "kind": "box",   "x": 42,  "y": 292, "w": 200, "h": 55, "color": "#c8f5c8" },
+
+    { "t": 108, "dur": 3,  "kind": "note",  "x": 420, "y": 250, "s": "Закон: свободно падающее тело", "color": "#ffd966" },
+    { "t": 112, "dur": 4,  "kind": "text",  "x": 430, "y": 300, "s": "h = g·t² / 2, g ≈ 9.8 м/с²", "font": "bold 26px \"Segoe UI\"", "color": "#ffffff" },
+
+    { "t": 120, "dur": 3,  "kind": "note",  "x": 40,  "y": 420, "s": "Итог: theory из опыта — 2 эксперимента подтвердили", "color": "#c8f5c8" },
+    { "t": 126, "dur": 3,  "kind": "cloud", "x": 500, "y": 430, "s": "дома: мерить время точнее" }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "session": {
+    "id": "k12",
+    "title": "Рубежный контроль 2 · Итог",
+    "schedule": "неделя 16 · пара 1 · 4 ак.ч",
+    "duration": 22,
+    "teacher": "🧑‍🏫 профессор Полиартова",
+    "result": "освоил: Рубежный контроль 2 · Итог",
+    "style": {
+      "type": "green",
+      "bg": "#2d6a2f",
+      "frame": "#6b4a2a",
+      "rail": "#7a5230",
+      "chalk": "#f4f4f0",
+      "accent": "#ffd966",
+      "white": "#ffffff",
+      "blue": "#a8d5ff",
+      "green": "#c8f5c8",
+      "red": "#ffb4a8"
+    },
+    "view": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  "room": {
+    "kind": "math",
+    "title": "Кабинет математики"
+  },
+  "sectioner": {
+    "blocks": [
+      {
+        "t": 0,
+        "label": "итоговые задачи"
+      },
+      {
+        "t": 3.8,
+        "label": "исследование функции"
+      },
+      {
+        "t": 7.6,
+        "label": "box"
+      }
+    ]
+  },
+  "strokes": [
+    {
+      "t": 0,
+      "dur": 3,
+      "kind": "note",
+      "x": 60,
+      "y": 80,
+      "s": "итоговые задачи",
+      "font": "bold 24px \"Segoe UI\"",
+      "color": "#ffffff"
+    },
+    {
+      "t": 3.8,
+      "dur": 3,
+      "kind": "note",
+      "x": 60,
+      "y": 132,
+      "s": "исследование функции",
+      "font": "bold 24px \"Segoe UI\"",
+      "color": "#ffffff"
+    },
+    {
+      "t": 7.6,
+      "dur": 3,
+      "kind": "box",
+      "x": 0,
+      "y": 0,
+      "w": 340,
+      "h": 60,
+      "color": "#ffd966"
+    },
+    {
+      "t": 13.399999999999999,
+      "dur": 3,
+      "kind": "note",
+      "x": 60,
+      "y": 60,
+      "s": "ИТОГ · ОСВОИЛ: РУБЕЖНЫЙ КОНТРОЛЬ 2 · ИТОГ",
+      "font": "bold 26px \"Segoe UI\"",
+      "color": "#ffd966"
+    },
+    {
+      "t": 16.9,
+      "dur": 3,
+      "kind": "box",
+      "x": 50,
+      "y": 52,
+      "w": 620,
+      "h": 56,
+      "color": "#ffd966"
+    }
+  ]
+}

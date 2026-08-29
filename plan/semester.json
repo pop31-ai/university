@@ -1,0 +1,901 @@
+{
+  "plan": {
+    "id": "sem2026-1",
+    "title": "Семестровый комплекс polimuli-chalkboard",
+    "period": "2026/2027 · 1-й семестр",
+    "weeks": 16,
+    "academicPerWeek": 4,
+    "pairsPerWeek": 2,
+    "author": "ИИ-руководитель / администратор партпроекта",
+    "use": "16 недель × 4 ак.ч (2 пары): пара 1 — профильная (математический анализ / физика-механика попеременно), пара 2 — полиарт-методология. Наша цель — обучить, не упустив желающего (правша/левша, разные темпы); см. METHODOLOGY.md."
+  },
+  "engines": [
+    {
+      "id": "chalkboard",
+      "file": "engine/chalkboard.js",
+      "window": "Chalk",
+      "type": "green|black",
+      "title": "Конспект-мел",
+      "spec": "Меловая доска, лента, кафедра.",
+      "teacher": "математик, физик-теоретик"
+    },
+    {
+      "id": "markerboard",
+      "file": "engine/markerboard.js",
+      "window": "Marker",
+      "type": "white",
+      "title": "Маркерная белая",
+      "spec": "Маркерная: mtext/mline, highlight, mwipe.",
+      "teacher": "наставник-администратор, планировщик"
+    },
+    {
+      "id": "corkboard",
+      "file": "engine/corkboard.js",
+      "window": "Cork",
+      "type": "cork",
+      "title": "Пробковая доска",
+      "spec": "Карточки card/cardtitle + pin + thread.",
+      "teacher": "методолог, мозговой штурм"
+    },
+    {
+      "id": "cinema",
+      "file": "engine/cinema.js",
+      "window": "Cinema",
+      "type": "cinema",
+      "title": "Кинозал-экран",
+      "spec": "Кинозал-проектор: slide/stext/sbox.",
+      "teacher": "лектор, ректор"
+    },
+    {
+      "id": "glass",
+      "file": "engine/glassboard.js",
+      "window": "Glass",
+      "type": "glass",
+      "title": "Стеклянная доска",
+      "spec": "Стеклянная панель, неоновое свечение, стилус-маркер.",
+      "teacher": "лектор-технолог, дизайнер"
+    },
+    {
+      "id": "led",
+      "file": "engine/neo.js",
+      "window": "LED",
+      "type": "led",
+      "title": "LED-панель",
+      "spec": "Светодиодная панель, яркие светящиеся мазки, полосы led.",
+      "teacher": "лектор-технолог, медиа"
+    },
+    {
+      "id": "neo",
+      "file": "engine/neo.js",
+      "window": "Neo",
+      "type": "neo",
+      "title": "Неон-волна (synthwave)",
+      "spec": "Неоновый ретро-фон, волны wave, свечение неона.",
+      "teacher": "лектор-стилист, арт"
+    },
+    {
+      "id": "wood",
+      "file": "engine/neo.js",
+      "window": "Wood",
+      "type": "wood",
+      "title": "Деревянная грифельная",
+      "spec": "Тёплая деревянная панель, меловая запись, без свечения.",
+      "teacher": "историк, языковед, классик"
+    },
+    {
+      "id": "brick",
+      "file": "engine/neo.js",
+      "window": "Brick",
+      "type": "brick",
+      "title": "Кирпичная стена-доска",
+      "spec": "Кирпичная кладка с мелом, граффити-конспект.",
+      "teacher": "уличный лектор, воркшоп"
+    },
+    {
+      "id": "overhead",
+      "file": "engine/neo.js",
+      "window": "Overhead",
+      "type": "overhead",
+      "title": "Оверхед-проектор",
+      "spec": "Плёночный экран, световой луч, камеры плёнки cell.",
+      "teacher": "педагог старой школы, ректор"
+    }
+  ],
+  "rooms": {
+    "math": "Кабинет математики",
+    "lab": "Лаборатория физики",
+    "cinema": "Кинозал",
+    "office": "Метод-кабинет (маркерная)",
+    "idea": "Пробковая комната идей"
+  },
+  "sessions": [
+    {
+      "id": "k01",
+      "file": "sessions/k01.json",
+      "engine": "chalkboard",
+      "room": "math",
+      "title": "Введение · Что такое производная (скорость)",
+      "week": 1,
+      "pair": 1,
+      "teacher": "🧑‍🏫 профессор Полиартова",
+      "task": "Понять производную как мгновенную скорость изменения через предел приращения.",
+      "outcome": "освоил: Введение · Что такое производная (скорость)"
+    },
+    {
+      "id": "k02",
+      "file": "sessions/k02.json",
+      "engine": "chalkboard",
+      "room": "math",
+      "title": "Вывод производной из определения (пошагово)",
+      "week": 1,
+      "pair": 1,
+      "teacher": "🧑‍🏫 профессор Полиартова",
+      "task": "Просветительски вывести f(x)=x² → f′(x)=2x из определения, с паузами на списывание.",
+      "outcome": "освоил: Вывод производной из определения (пошагово)"
+    },
+    {
+      "id": "k03",
+      "file": "sessions/k03.json",
+      "engine": "markerboard",
+      "room": "office",
+      "title": "Полиарт 1 · Как устроен конспект-лекция",
+      "week": 1,
+      "pair": 2,
+      "teacher": "👩‍💼 наставник-администратор",
+      "task": "Маркером выстроить карту «цель → этапы → итог» и правила записи.",
+      "outcome": "освоил: Полиарт 1 · Как устроен конспект-лекция"
+    },
+    {
+      "id": "k04",
+      "file": "sessions/k04.json",
+      "engine": "chalkboard",
+      "room": "math",
+      "title": "Правила дифференцирования (сумма, произведение)",
+      "week": 2,
+      "pair": 1,
+      "teacher": "🧑‍🏫 профессор Полиартова",
+      "task": "Вывести и применить (f+g)′, (cf)′, (f·g)′ через определение.",
+      "outcome": "освоил: Правила дифференцирования (сумма, произведение)"
+    },
+    {
+      "id": "m02",
+      "file": "sessions/m02.json",
+      "engine": "markerboard",
+      "room": "office",
+      "title": "Полиарт 2 · Карта целей недели",
+      "week": 2,
+      "pair": 2,
+      "teacher": "👩‍💼 наставник-администратор",
+      "task": "Подсветить ключевые задачи ближних недель (highlight + mwipe).",
+      "outcome": "освоил: Полиарт 2 · Карта целей недели"
+    },
+    {
+      "id": "f01",
+      "file": "sessions/f01.json",
+      "engine": "chalkboard",
+      "room": "lab",
+      "title": "Физика 1 · Кинематика: скорость и ускорение",
+      "week": 3,
+      "pair": 1,
+      "teacher": "🧑‍🔬 доцент Весов",
+      "task": "Из геометрии движения ввести скорость и ускорение как производные пути (связь с МА).",
+      "outcome": "освоил: Физика 1 · Кинематика: скорость и ускорение"
+    },
+    {
+      "id": "c03",
+      "file": "sessions/c03.json",
+      "engine": "cinema",
+      "room": "cinema",
+      "title": "Полиарт 3 · Премьера первого эпизода",
+      "week": 3,
+      "pair": 2,
+      "teacher": "🎬 ректор Кинокадров",
+      "task": "Слайды-кат-сцены: как оформить свой первый эпизод.",
+      "outcome": "освоил: Полиарт 3 · Премьера первого эпизода"
+    },
+    {
+      "id": "k05",
+      "file": "sessions/k05.json",
+      "engine": "chalkboard",
+      "room": "math",
+      "title": "Геометрический смысл производной",
+      "week": 4,
+      "pair": 1,
+      "teacher": "🧑‍🏫 профессор Полиартова",
+      "task": "Касательная, скорость роста; знак производной → возрастание/убывание.",
+      "outcome": "освоил: Геометрический смысл производной"
+    },
+    {
+      "id": "b02",
+      "file": "sessions/b02.json",
+      "engine": "corkboard",
+      "room": "idea",
+      "title": "Полиарт 4 · Карта идей: связать понятия",
+      "week": 4,
+      "pair": 2,
+      "teacher": "🧑‍🏫 методолог Лебедев",
+      "task": "Карточки «предел/производная/скорость/ускорение» + нити-связи.",
+      "outcome": "освоил: Полиарт 4 · Карта идей: связать понятия"
+    },
+    {
+      "id": "f02",
+      "file": "sessions/f02.json",
+      "engine": "chalkboard",
+      "room": "lab",
+      "title": "Физика 2 · Свободное падение (опыт → закон)",
+      "week": 5,
+      "pair": 1,
+      "teacher": "🧑‍🔬 доцент Весов",
+      "task": "Из таблицы измерений вывести h = g·t²/2; g ≈ 9.8. Опыт → измерения → закон.",
+      "outcome": "освоил: Физика 2 · Свободное падение (опыт → закон)"
+    },
+    {
+      "id": "c04",
+      "file": "sessions/c04.json",
+      "engine": "cinema",
+      "room": "cinema",
+      "title": "Полиарт 5 · Кат-сцены опыта",
+      "week": 5,
+      "pair": 2,
+      "teacher": "🎬 ректор Кинокадров",
+      "task": "Слайды последовательности опыта как короткий эпизод.",
+      "outcome": "освоил: Полиарт 5 · Кат-сцены опыта"
+    },
+    {
+      "id": "k06",
+      "file": "sessions/k06.json",
+      "engine": "chalkboard",
+      "room": "math",
+      "title": "Производная сложной функции (цепное правило)",
+      "week": 6,
+      "pair": 1,
+      "teacher": "🧑‍🏫 профессор Полиартова",
+      "task": "Уметь дифференцировать композиции; вывести (f∘g)′ = f′(g)·g′.",
+      "outcome": "освоил: Производная сложной функции (цепное правило)"
+    },
+    {
+      "id": "m03",
+      "file": "sessions/m03.json",
+      "engine": "markerboard",
+      "room": "office",
+      "title": "Полиарт 6 · Метод-карта: сеть правил",
+      "week": 6,
+      "pair": 2,
+      "teacher": "👩‍💼 наставник-администратор",
+      "task": "Обобщить правила дифференцирования в схему с подсветкой.",
+      "outcome": "освоил: Полиарт 6 · Метод-карта: сеть правил"
+    },
+    {
+      "id": "f03",
+      "file": "sessions/f03.json",
+      "engine": "chalkboard",
+      "room": "lab",
+      "title": "Физика 3 · Динамика: закон Ньютона",
+      "week": 7,
+      "pair": 1,
+      "teacher": "🧑‍🔬 доцент Весов",
+      "task": "Связать ускорение с силой: F = m·a (вторая производная пути).",
+      "outcome": "освоил: Физика 3 · Динамика: закон Ньютона"
+    },
+    {
+      "id": "b03",
+      "file": "sessions/b03.json",
+      "engine": "corkboard",
+      "room": "idea",
+      "title": "Полиарт 7 · Карта проекта-серии",
+      "week": 7,
+      "pair": 2,
+      "teacher": "🧑‍🏫 методолог Лебедев",
+      "task": "Спланировать серию из 5 эпизодов как личный курс.",
+      "outcome": "освоил: Полиарт 7 · Карта проекта-серии"
+    },
+    {
+      "id": "k07",
+      "file": "sessions/k07.json",
+      "engine": "chalkboard",
+      "room": "math",
+      "title": "Рубежный контроль 1 · Производная",
+      "week": 8,
+      "pair": 1,
+      "teacher": "🧑‍🏫 профессор Полиартова",
+      "task": "Повторить и закрепить: определение, правила, геометрический смысл.",
+      "outcome": "освоил: Рубежный контроль 1 · Производная"
+    },
+    {
+      "id": "c05",
+      "file": "sessions/c05.json",
+      "engine": "cinema",
+      "room": "cinema",
+      "title": "Полиарт 8 · Итог первой половины",
+      "week": 8,
+      "pair": 2,
+      "teacher": "🎬 ректор Кинокадров",
+      "task": "Ретроспектив-слайды пройденного, анонс второй половины.",
+      "outcome": "освоил: Полиарт 8 · Итог первой половины"
+    },
+    {
+      "id": "k08",
+      "file": "sessions/k08.json",
+      "engine": "chalkboard",
+      "room": "math",
+      "title": "Вторая производная: выпуклость и точки перегиба",
+      "week": 9,
+      "pair": 1,
+      "teacher": "🧑‍🏫 профессор Полиартова",
+      "task": "Исследование графика: f″>0 → выпукла; перегиб в f″=0.",
+      "outcome": "освоил: Вторая производная: выпуклость и точки перегиба"
+    },
+    {
+      "id": "m04",
+      "file": "sessions/m04.json",
+      "engine": "markerboard",
+      "room": "office",
+      "title": "Полиарт 9 · Карта понятий второй половины",
+      "week": 9,
+      "pair": 2,
+      "teacher": "👩‍💼 наставник-администратор",
+      "task": "Подсветить новые термины (вторая производная, перегиб).",
+      "outcome": "освоил: Полиарт 9 · Карта понятий второй половины"
+    },
+    {
+      "id": "f04",
+      "file": "sessions/f04.json",
+      "engine": "chalkboard",
+      "room": "lab",
+      "title": "Физика 4 · Работа и энергия",
+      "week": 10,
+      "pair": 1,
+      "teacher": "🧑‍🔬 доцент Весов",
+      "task": "Ввести работу: A = F·s, связь с производной кинетической энергии.",
+      "outcome": "освоил: Физика 4 · Работа и энергия"
+    },
+    {
+      "id": "b04",
+      "file": "sessions/b04.json",
+      "engine": "corkboard",
+      "room": "idea",
+      "title": "Полиарт 10 · «Энергия vs производная»",
+      "week": 10,
+      "pair": 2,
+      "teacher": "🧑‍🏫 методолог Лебедев",
+      "task": "Связать карточки производной и энергии нитями-аналогиями.",
+      "outcome": "освоил: Полиарт 10 · «Энергия vs производная»"
+    },
+    {
+      "id": "k09",
+      "file": "sessions/k09.json",
+      "engine": "chalkboard",
+      "room": "math",
+      "title": "Применение: поиск экстремумов",
+      "week": 11,
+      "pair": 1,
+      "teacher": "🧑‍🏫 профессор Полиартова",
+      "task": "Алгоритм max/min через условие f′=0 и знак производной.",
+      "outcome": "освоил: Применение: поиск экстремумов"
+    },
+    {
+      "id": "c06",
+      "file": "sessions/c06.json",
+      "engine": "cinema",
+      "room": "cinema",
+      "title": "Полиарт 11 · Как «взять производную»",
+      "week": 11,
+      "pair": 2,
+      "teacher": "🎬 ректор Кинокадров",
+      "task": "Сценическая мини-история применения производной.",
+      "outcome": "освоил: Полиарт 11 · Как «взять производную»"
+    },
+    {
+      "id": "f05",
+      "file": "sessions/f05.json",
+      "engine": "chalkboard",
+      "room": "lab",
+      "title": "Физика 5 · Законы сохранения",
+      "week": 12,
+      "pair": 1,
+      "teacher": "🧑‍🔬 доцент Весов",
+      "task": "Связать сохранение энергии и импульса с математикой курса.",
+      "outcome": "освоил: Физика 5 · Законы сохранения"
+    },
+    {
+      "id": "m05",
+      "file": "sessions/m05.json",
+      "engine": "markerboard",
+      "room": "office",
+      "title": "Полиарт 12 · Обобщающая схема",
+      "week": 12,
+      "pair": 2,
+      "teacher": "👩‍💼 наставник-администратор",
+      "task": "Единая схема «вывод → закон → применение» по всему курсу.",
+      "outcome": "освоил: Полиарт 12 · Обобщающая схема"
+    },
+    {
+      "id": "k10",
+      "file": "sessions/k10.json",
+      "engine": "chalkboard",
+      "room": "math",
+      "title": "Эскиз графика по первой и второй производной",
+      "week": 13,
+      "pair": 1,
+      "teacher": "🧑‍🏫 профессор Полиартова",
+      "task": "Полное исследование функции и построение графика.",
+      "outcome": "освоил: Эскиз графика по первой и второй производной"
+    },
+    {
+      "id": "b05",
+      "file": "sessions/b05.json",
+      "engine": "corkboard",
+      "room": "idea",
+      "title": "Полиарт 13 · Шаблон эпизода",
+      "week": 13,
+      "pair": 2,
+      "teacher": "🧑‍🏫 методолог Лебедев",
+      "task": "Карточка-шаблон эпизода (Тема→Опыт→Вывод→Итог) как чек-лист.",
+      "outcome": "освоил: Полиарт 13 · Шаблон эпизода"
+    },
+    {
+      "id": "f06",
+      "file": "sessions/f06.json",
+      "engine": "chalkboard",
+      "room": "lab",
+      "title": "Физика 6 · Колебания (гармонический осциллятор)",
+      "week": 14,
+      "pair": 1,
+      "teacher": "🧑‍🔬 доцент Весов",
+      "task": "x(t)=A·cos(ωt); скорость и ускорение — производные (связь с МА).",
+      "outcome": "освоил: Физика 6 · Колебания (гармонический осциллятор)"
+    },
+    {
+      "id": "c07",
+      "file": "sessions/c07.json",
+      "engine": "cinema",
+      "room": "cinema",
+      "title": "Полиарт 14 · «Ритм и производная»",
+      "week": 14,
+      "pair": 2,
+      "teacher": "🎬 ректор Кинокадров",
+      "task": "Слайды о связи периодичности и производной.",
+      "outcome": "освоил: Полиарт 14 · «Ритм и производная»"
+    },
+    {
+      "id": "k11",
+      "file": "sessions/k11.json",
+      "engine": "chalkboard",
+      "room": "math",
+      "title": "Повторение всего курса",
+      "week": 15,
+      "pair": 1,
+      "teacher": "🧑‍🏫 профессор Полиартова",
+      "task": "Сводная карта курса: производная, правила, геометрия, графики.",
+      "outcome": "освоил: Повторение всего курса"
+    },
+    {
+      "id": "b06",
+      "file": "sessions/b06.json",
+      "engine": "corkboard",
+      "room": "idea",
+      "title": "Полиарт 15 · Сборка своей серии",
+      "week": 15,
+      "pair": 2,
+      "teacher": "🧑‍🏫 методолог Лебедев",
+      "task": "Финальная сборка личной серии эпизодов из карточек.",
+      "outcome": "освоил: Полиарт 15 · Сборка своей серии"
+    },
+    {
+      "id": "k12",
+      "file": "sessions/k12.json",
+      "engine": "chalkboard",
+      "room": "math",
+      "title": "Рубежный контроль 2 · Итог",
+      "week": 16,
+      "pair": 1,
+      "teacher": "🧑‍🏫 профессор Полиартова",
+      "task": "Итоговая проверка: производная и её применения.",
+      "outcome": "освоил: Рубежный контроль 2 · Итог"
+    },
+    {
+      "id": "c08",
+      "file": "sessions/c08.json",
+      "engine": "cinema",
+      "room": "cinema",
+      "title": "Полиарт 16 · Премьера твоей серии",
+      "week": 16,
+      "pair": 2,
+      "teacher": "🎬 ректор Кинокадров",
+      "task": "Финальное слайд-шоу курса и анонс следующего семестра.",
+      "outcome": "освоил: Полиарт 16 · Премьера твоей серии"
+    },
+    {
+      "id": "c01_kinozal",
+      "file": "sessions/c01_kinozal.json",
+      "engine": "chalkboard",
+      "room": "cinema",
+      "title": "Архив · Обзор семестра (меловой вариант)",
+      "week": 1,
+      "pair": 1,
+      "teacher": "ректор Кинокадров",
+      "task": "исторический артефакт: презентация chalk-мазками, сохранено как ориентир",
+      "archive": true
+    },
+    {
+      "id": "c02_kinozal",
+      "file": "sessions/c02_kinozal.json",
+      "engine": "cinema",
+      "room": "cinema",
+      "title": "Кинозал · Премьера семестра (слайд-шоу)",
+      "week": 1,
+      "pair": 2,
+      "teacher": "ректор Кинокадров",
+      "task": "slide/stext/sarrow/sbox + кат-сцены подъёма экранной ленты"
+    },
+    {
+      "id": "m01_plan",
+      "file": "sessions/m01_plan.json",
+      "engine": "markerboard",
+      "room": "office",
+      "title": "Метод-кабинет · План семестра",
+      "week": 1,
+      "pair": 2,
+      "teacher": "наставник-администратор",
+      "task": "маркерная карта целей семестра, подсветка ключевых задач"
+    },
+    {
+      "id": "b01_ideas",
+      "file": "sessions/b01_ideas.json",
+      "engine": "corkboard",
+      "room": "idea",
+      "title": "Пробковая комната идей",
+      "week": 1,
+      "pair": 2,
+      "teacher": "методолог",
+      "task": "карточки-идеи + булавки + нити связей (карта проекта семестра)"
+    }
+  ],
+  "weeks": [
+    {
+      "week": 1,
+      "pairs": [
+        {
+          "pair": 1,
+          "side": "math",
+          "engine": "chalkboard",
+          "room": "math",
+          "session": "k01",
+          "title": "Введение · Что такое производная (скорость)"
+        },
+        {
+          "pair": 1,
+          "side": "math",
+          "engine": "chalkboard",
+          "room": "math",
+          "session": "k02",
+          "title": "Вывод производной из определения (пошагово)"
+        },
+        {
+          "pair": 2,
+          "side": "polyart",
+          "engine": "markerboard",
+          "room": "office",
+          "session": "k03",
+          "title": "Полиарт 1 · Как устроен конспект-лекция"
+        }
+      ]
+    },
+    {
+      "week": 2,
+      "pairs": [
+        {
+          "pair": 1,
+          "side": "math",
+          "engine": "chalkboard",
+          "room": "math",
+          "session": "k04",
+          "title": "Правила дифференцирования (сумма, произведение)"
+        },
+        {
+          "pair": 2,
+          "side": "polyart",
+          "engine": "markerboard",
+          "room": "office",
+          "session": "m02",
+          "title": "Полиарт 2 · Карта целей недели"
+        }
+      ]
+    },
+    {
+      "week": 3,
+      "pairs": [
+        {
+          "pair": 1,
+          "side": "physics",
+          "engine": "chalkboard",
+          "room": "lab",
+          "session": "f01",
+          "title": "Физика 1 · Кинематика: скорость и ускорение"
+        },
+        {
+          "pair": 2,
+          "side": "polyart",
+          "engine": "cinema",
+          "room": "cinema",
+          "session": "c03",
+          "title": "Полиарт 3 · Премьера первого эпизода"
+        }
+      ]
+    },
+    {
+      "week": 4,
+      "pairs": [
+        {
+          "pair": 1,
+          "side": "math",
+          "engine": "chalkboard",
+          "room": "math",
+          "session": "k05",
+          "title": "Геометрический смысл производной"
+        },
+        {
+          "pair": 2,
+          "side": "polyart",
+          "engine": "corkboard",
+          "room": "idea",
+          "session": "b02",
+          "title": "Полиарт 4 · Карта идей: связать понятия"
+        }
+      ]
+    },
+    {
+      "week": 5,
+      "pairs": [
+        {
+          "pair": 1,
+          "side": "physics",
+          "engine": "chalkboard",
+          "room": "lab",
+          "session": "f02",
+          "title": "Физика 2 · Свободное падение (опыт → закон)"
+        },
+        {
+          "pair": 2,
+          "side": "polyart",
+          "engine": "cinema",
+          "room": "cinema",
+          "session": "c04",
+          "title": "Полиарт 5 · Кат-сцены опыта"
+        }
+      ]
+    },
+    {
+      "week": 6,
+      "pairs": [
+        {
+          "pair": 1,
+          "side": "math",
+          "engine": "chalkboard",
+          "room": "math",
+          "session": "k06",
+          "title": "Производная сложной функции (цепное правило)"
+        },
+        {
+          "pair": 2,
+          "side": "polyart",
+          "engine": "markerboard",
+          "room": "office",
+          "session": "m03",
+          "title": "Полиарт 6 · Метод-карта: сеть правил"
+        }
+      ]
+    },
+    {
+      "week": 7,
+      "pairs": [
+        {
+          "pair": 1,
+          "side": "physics",
+          "engine": "chalkboard",
+          "room": "lab",
+          "session": "f03",
+          "title": "Физика 3 · Динамика: закон Ньютона"
+        },
+        {
+          "pair": 2,
+          "side": "polyart",
+          "engine": "corkboard",
+          "room": "idea",
+          "session": "b03",
+          "title": "Полиарт 7 · Карта проекта-серии"
+        }
+      ]
+    },
+    {
+      "week": 8,
+      "pairs": [
+        {
+          "pair": 1,
+          "side": "math",
+          "engine": "chalkboard",
+          "room": "math",
+          "session": "k07",
+          "title": "Рубежный контроль 1 · Производная"
+        },
+        {
+          "pair": 2,
+          "side": "polyart",
+          "engine": "cinema",
+          "room": "cinema",
+          "session": "c05",
+          "title": "Полиарт 8 · Итог первой половины"
+        }
+      ]
+    },
+    {
+      "week": 9,
+      "pairs": [
+        {
+          "pair": 1,
+          "side": "math",
+          "engine": "chalkboard",
+          "room": "math",
+          "session": "k08",
+          "title": "Вторая производная: выпуклость и точки перегиба"
+        },
+        {
+          "pair": 2,
+          "side": "polyart",
+          "engine": "markerboard",
+          "room": "office",
+          "session": "m04",
+          "title": "Полиарт 9 · Карта понятий второй половины"
+        }
+      ]
+    },
+    {
+      "week": 10,
+      "pairs": [
+        {
+          "pair": 1,
+          "side": "physics",
+          "engine": "chalkboard",
+          "room": "lab",
+          "session": "f04",
+          "title": "Физика 4 · Работа и энергия"
+        },
+        {
+          "pair": 2,
+          "side": "polyart",
+          "engine": "corkboard",
+          "room": "idea",
+          "session": "b04",
+          "title": "Полиарт 10 · «Энергия vs производная»"
+        }
+      ]
+    },
+    {
+      "week": 11,
+      "pairs": [
+        {
+          "pair": 1,
+          "side": "math",
+          "engine": "chalkboard",
+          "room": "math",
+          "session": "k09",
+          "title": "Применение: поиск экстремумов"
+        },
+        {
+          "pair": 2,
+          "side": "polyart",
+          "engine": "cinema",
+          "room": "cinema",
+          "session": "c06",
+          "title": "Полиарт 11 · Как «взять производную»"
+        }
+      ]
+    },
+    {
+      "week": 12,
+      "pairs": [
+        {
+          "pair": 1,
+          "side": "physics",
+          "engine": "chalkboard",
+          "room": "lab",
+          "session": "f05",
+          "title": "Физика 5 · Законы сохранения"
+        },
+        {
+          "pair": 2,
+          "side": "polyart",
+          "engine": "markerboard",
+          "room": "office",
+          "session": "m05",
+          "title": "Полиарт 12 · Обобщающая схема"
+        }
+      ]
+    },
+    {
+      "week": 13,
+      "pairs": [
+        {
+          "pair": 1,
+          "side": "math",
+          "engine": "chalkboard",
+          "room": "math",
+          "session": "k10",
+          "title": "Эскиз графика по первой и второй производной"
+        },
+        {
+          "pair": 2,
+          "side": "polyart",
+          "engine": "corkboard",
+          "room": "idea",
+          "session": "b05",
+          "title": "Полиарт 13 · Шаблон эпизода"
+        }
+      ]
+    },
+    {
+      "week": 14,
+      "pairs": [
+        {
+          "pair": 1,
+          "side": "physics",
+          "engine": "chalkboard",
+          "room": "lab",
+          "session": "f06",
+          "title": "Физика 6 · Колебания (гармонический осциллятор)"
+        },
+        {
+          "pair": 2,
+          "side": "polyart",
+          "engine": "cinema",
+          "room": "cinema",
+          "session": "c07",
+          "title": "Полиарт 14 · «Ритм и производная»"
+        }
+      ]
+    },
+    {
+      "week": 15,
+      "pairs": [
+        {
+          "pair": 1,
+          "side": "math",
+          "engine": "chalkboard",
+          "room": "math",
+          "session": "k11",
+          "title": "Повторение всего курса"
+        },
+        {
+          "pair": 2,
+          "side": "polyart",
+          "engine": "corkboard",
+          "room": "idea",
+          "session": "b06",
+          "title": "Полиарт 15 · Сборка своей серии"
+        }
+      ]
+    },
+    {
+      "week": 16,
+      "pairs": [
+        {
+          "pair": 1,
+          "side": "math",
+          "engine": "chalkboard",
+          "room": "math",
+          "session": "k12",
+          "title": "Рубежный контроль 2 · Итог"
+        },
+        {
+          "pair": 2,
+          "side": "polyart",
+          "engine": "cinema",
+          "room": "cinema",
+          "session": "c08",
+          "title": "Полиарт 16 · Премьера твоей серии"
+        }
+      ]
+    }
+  ],
+  "methodology": "См. METHODOLOGY.md — доступность и саморегуляция индивида, вопросы в зал без давления, блочность, прочность, два режима ленты."
+}

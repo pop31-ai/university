@@ -1,0 +1,156 @@
+{
+  "session": {
+    "id": "c07",
+    "title": "Полиарт 14 · «Ритм и производная»",
+    "schedule": "неделя 14 · пара 2 · 4 ак.ч",
+    "duration": 34,
+    "teacher": "🎬 ректор Кинокадров",
+    "result": "освоил: Полиарт 14 · «Ритм и производная»",
+    "style": {
+      "type": "cinema",
+      "chalk": "#f4f2ea",
+      "accent": "#ffd966"
+    },
+    "view": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  "room": {
+    "kind": "cinema",
+    "title": "Кинозал · экран-лента"
+  },
+  "sectioner": {
+    "blocks": [
+      {
+        "t": 0,
+        "label": "ОСЦИЛЛЯТОР"
+      },
+      {
+        "t": 3.8,
+        "label": "x=A·cos(ωt), v=−Aω sin, a=−ω²x"
+      }
+    ]
+  },
+  "strokes": [
+    {
+      "t": 0,
+      "dur": 3,
+      "kind": "slide",
+      "x": 60,
+      "y": 80,
+      "s": "ОСЦИЛЛЯТОР",
+      "font": "bold 40px \"Segoe UI\"",
+      "color": "#ffffff"
+    },
+    {
+      "t": 3.8,
+      "dur": 3,
+      "kind": "stext",
+      "x": 60,
+      "y": 132,
+      "s": "x=A·cos(ωt), v=−Aω sin, a=−ω²x",
+      "font": "bold 26px \"Segoe UI\"",
+      "color": "#f4f4f0"
+    },
+    {
+      "t": 9.6,
+      "dur": 3,
+      "kind": "slide",
+      "x": 60,
+      "y": 200,
+      "s": "УСКОРЕНИЕ В КОЛЕБАНИИ? ?",
+      "font": "bold 24px \"Segoe UI\"",
+      "color": "#ffd966"
+    },
+    {
+      "t": 13.1,
+      "dur": 3,
+      "kind": "stext",
+      "x": 80,
+      "y": 260,
+      "s": "1) a=−ω²x",
+      "font": "bold 18px \"Segoe UI\"",
+      "color": "#c8f5c8"
+    },
+    {
+      "t": 13.5,
+      "dur": 3,
+      "kind": "stext",
+      "x": 80,
+      "y": 302,
+      "s": "2) a=ωx",
+      "font": "bold 18px \"Segoe UI\"",
+      "color": "#f4f4f0"
+    },
+    {
+      "t": 13.9,
+      "dur": 3,
+      "kind": "stext",
+      "x": 80,
+      "y": 344,
+      "s": "3) a=const",
+      "font": "bold 18px \"Segoe UI\"",
+      "color": "#f4f4f0"
+    },
+    {
+      "t": 17.3,
+      "dur": 3,
+      "kind": "slide",
+      "x": 60,
+      "y": 390,
+      "s": "→ ПРАВИЛЬНЫЙ: A=−Ω²X",
+      "font": "bold 22px \"Segoe UI\"",
+      "color": "#c8f5c8"
+    },
+    {
+      "t": 17.3,
+      "dur": 3,
+      "kind": "sbox",
+      "x": 50,
+      "y": 382,
+      "w": 460,
+      "h": 52,
+      "color": "#c8f5c8"
+    },
+    {
+      "t": 20.8,
+      "dur": 3.5,
+      "kind": "cloud",
+      "x": 560,
+      "y": 200,
+      "s": "почему так / почему не другие:",
+      "color": "#a8d5ff"
+    },
+    {
+      "t": 20.8,
+      "dur": 4,
+      "kind": "stext",
+      "x": 60,
+      "y": 460,
+      "s": "Для гармонических колебаний a=−ω²x — пропорционально смещению и противоположно направлено.",
+      "font": "bold 17px \"Segoe UI\"",
+      "color": "#f4f4f0"
+    },
+    {
+      "t": 25.8,
+      "dur": 3,
+      "kind": "slide",
+      "x": 60,
+      "y": 60,
+      "s": "ИТОГ · ОСВОИЛ: ПОЛИАРТ 14 · «РИТМ И ПРОИЗВОДНАЯ»",
+      "font": "bold 26px \"Segoe UI\"",
+      "color": "#ffd966"
+    },
+    {
+      "t": 29.3,
+      "dur": 3,
+      "kind": "sbox",
+      "x": 50,
+      "y": 52,
+      "w": 620,
+      "h": 56,
+      "color": "#ffd966"
+    }
+  ]
+}

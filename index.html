@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Polimuli-chalkboard · семестровый комплекс</title>
+<style>
+  body { margin:0; background:#14180f; color:#e8e8dc;
+         font-family:"Segoe UI", Arial, sans-serif; }
+  .wrap { max-width:980px; margin:0 auto; padding:34px 18px 60px; }
+  h1 { letter-spacing:2px; font-size:24px; color:#d9e8b8; }
+  .sub { color:#a5b58a; font-size:14px; margin:6px 0 22px; line-height:1.6; }
+  h2 { font-size:16px; letter-spacing:1px; color:#8aa06a; margin:30px 0 12px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+  .card { background:#1a2115; border:1px solid #2a3320; border-radius:12px; padding:16px;
+          text-decoration:none; color:#d9e8b8; transition:.15s; display:block; }
+  .card:hover { border-color:#8aa06a; background:#22301a; }
+  .card .ico { font-size:28px; }
+  .card h3 { font-size:16px; margin:8px 0 4px; }
+  .card p { color:#a5b58a; font-size:13px; margin:0; line-height:1.5; }
+  .card .tag { display:inline-block; margin-top:10px; font-size:11px; color:#8aa06a;
+               background:#2a3320; border-radius:20px; padding:2px 9px; margin-right:5px; }
+  .pills a { display:inline-block; margin:0 8px 8px 0; background:#2a3320; color:#c8d8b0;
+             border:1px solid #3a4830; border-radius:20px; padding:7px 14px; font-size:13px;
+             text-decoration:none; }
+  .pills a:hover { border-color:#8aa06a; }
+  table { border-collapse:collapse; width:100%; font-size:13px; }
+  th, td { text-align:left; padding:7px 9px; border-bottom:1px solid #2a3320; }
+  th { color:#a5b58a; }
+  .foot { margin-top:32px; color:#7a8a62; font-size:12px; text-align:center; }
+  code { background:#2a3320; padding:1px 6px; border-radius:4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🖍 МЕЛОВАЯ ДОСКА · СЕМЕСТРОВЫЙ КОМПЛЕКС</h1>
+  <div class="sub">
+    Обучение по кабинетам и по специфике доски: каждому преподавателю — свой движок
+    (мел / маркер / пробка / кино) и свой кабинет. Доска — бесконечная рулонная лента:
+    подъём вверх/вниз и развороты открывают новые участки. Комплекс управляется из
+    плана семестра (для ИИ-руководителя и администратора); готовое не удаляется —
+    всё сохраняется как базис истории экспериментов и задач преподавателя.
+  </div>
+
+  <h2>Пульт и плееры</h2>
+  <div class="pills">
+    <a href="admin/index.html">🗂 пульт администратора (план)</a>
+    <a href="player/field.html?sessions=c02&engine=cinema">🎬 кинозал · премьера</a>
+    <a href="player/field.html?sessions=m01&engine=markerboard">⬜ метод-кабинет · план</a>
+    <a href="player/field.html?sessions=b01&engine=corkboard">🟫 пробка · карта идей</a>
+    <a href="player/field.html?sessions=k01&engine=chalkboard">📐 математика · производная</a>
+    <a href="player/field.html?sessions=f01&engine=chalkboard">🧪 физика · опыт падения</a>
+  </div>
+
+  <h2>Движки (по специфике)</h2>
+  <div class="grid">
+    <a class="card" href="player/field.html?sessions=k01&engine=chalkboard">
+      <div class="ico">🟩</div><h3>chalkboard · «Конспект-мел»</h3>
+      <p>Зелёная/чёрная меловая доска, кафедра. Тест посимвольно, стрелки, таблицы, губка.</p>
+      <span class="tag">математика</span><span class="tag">физика-теория</span>
+    </a>
+    <a class="card" href="player/field.html?sessions=m01&engine=markerboard">
+      <div class="ico">⬜</div><h3>markerboard · «Маркерная белая»</h3>
+      <p>Маркерные чернила без крошки, подсветка highlight, сухое стирание со влажным следом.</p>
+      <span class="tag">администратор</span><span class="tag">план</span>
+    </a>
+    <a class="card" href="player/field.html?sessions=b01&engine=corkboard">
+      <div class="ico">🟫</div><h3>corkboard · «Пробковая»</h3>
+      <p>Карточки + булавки + нити связей. Мозговые карты, план проекта.</p>
+      <span class="tag">методолог</span><span class="tag">идеи</span>
+    </a>
+    <a class="card" href="player/field.html?sessions=c02&engine=cinema">
+      <div class="ico">🎬</div><h3>cinema · «Кинозал-экран»</h3>
+      <p>Затемнённый зал, проектор, экран-лента. Слайды, кат-сцены подъёма ленты.</p>
+      <span class="tag">лексор</span><span class="tag">презентация</span>
+    </a>
+  </div>
+
+  <h2>Занятия семестра</h2>
+  <table>
+    <thead><tr><th>занятие</th><th>движок</th><th>кабинет</th><th>преподаватель</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+
+  <div class="foot">
+    <code>plan/semester.json</code> — план · <code>engine/*.js</code> — движки ·
+    <code>sessions/*.json</code> — конспекты · <code>METHODOLOGY.md</code> — методика по преподавателям ·
+    <code>admin/index.html</code> — пульт администратора
+  </div>
+</div>
+
+<script>
+  var ROOMS = { math:'кабинет математики', lab:'лаборатория физики', cinema:'кинозал',
+                office:'метод-кабинет', idea:'комната идей' };
+  fetch('plan/semester.json').then(function(r){ return r.json(); })
+    .then(function(P){
+      P.sessions.forEach(function(s){
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td>'+ (s.archive?'🗃️ ':'') + s.title +'</td>'+
+          '<td><code>'+s.engine+'</code></td>'+
+          '<td>'+(ROOMS[s.room]||s.room)+'</td>'+
+          '<td>'+s.teacher+'</td>';
+        document.getElementById('rows').appendChild(tr);
+      });
+    });
+</script>
+</body>
+</html>

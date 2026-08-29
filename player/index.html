@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Меловая доска · polimuli-chalkboard</title>
+<style>
+  :root { --green:#205020; --rail:#7a5230; --chalk:#f4f4f0; }
+  body { margin:0; background:#12160f; color:#e8e8dc;
+         font-family:"Segoe UI", Arial, sans-serif; }
+  .head { text-align:center; padding:22px 16px 10px; border-bottom:1px solid #2a3320; }
+  .head h1 { margin:0; font-size:20px; letter-spacing:2px; color:#d9e8b8; }
+  .head .sub { margin-top:6px; color:#a5b58a; font-size:13px; }
+  #boardstage { display:flex; justify-content:center; padding:18px 14px; }
+  #board { box-shadow:0 18px 60px rgba(0,0,0,.7), inset 0 0 40px rgba(255,255,255,.03);
+           border-radius:8px; max-width:96vw; }
+  .ctrl { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; padding:4px 14px 18px; }
+  .btn { background:#2a3320; color:#d9e8b8; border:1px solid #46553a; border-radius:20px;
+         padding:9px 18px; cursor:pointer; font-size:14px; }
+  .btn:hover { border-color:#8aa06a; }
+  .row { max-width:900px; margin:0 auto; padding:6px 18px 30px; }
+  .schedule { border-top:1px solid #2a3320; padding-top:16px; margin-top:8px; }
+  .schedule h2 { font-size:14px; letter-spacing:1px; color:#a5b58a; margin:0 0 12px; }
+  .hour { display:flex; gap:12px; align-items:baseline; padding:7px 12px; border-radius:8px;
+          margin-bottom:6px; background:#1a2115; border:1px solid #2a3320; }
+  .hour.now { border-color:#8aa06a; background:#22301a; }
+  .hour .time { color:#8aa06a; font-size:12px; white-space:nowrap; min-width:130px; }
+  .hour .topic { color:#d9e8b8; }
+  .hour .tag { margin-left:auto; color:#a5b58a; font-size:11px; }
+  .timeline { font-size:12px; color:#a5b58a; text-align:center; padding-bottom:10px; }
+  .foot { text-align:center; color:#7a8a62; font-size:12px; padding:14px; }
+  code { background:#2a3320; padding:1px 6px; border-radius:4px; }
+</style>
+</head>
+<body>
+  <div class="head">
+    <h1>🖍 МЕЛОВАЯ ДОСКА</h1>
+    <div class="sub" id="meta">— · —</div>
+    <div class="sub" id="roomline">— · —</div>
+    <div class="timeline" id="clock">00:00</div>
+  </div>
+
+  <div id="boardstage"><canvas id="board" width="960" height="540"></canvas></div>
+
+  <div class="ctrl">
+    <button class="btn" id="bSel">⏮ в начало</button>
+    <button class="btn" id="bPlay">⏸ пауза</button>
+    <button class="btn" id="bReplay">↻ переиграть</button>
+  </div>
+  <div class="ctrl">
+    <button class="btn" data-s="k01">📐 кабинет математики</button>
+    <button class="btn" data-s="f01">🧪 лаборатория (опыт)</button>
+    <button class="btn" data-s="c01">🎬 кинозал (лекция)</button>
+  </div>
+
+  <div class="row">
+    <div class="schedule">
+      <h2>Расписание · сегодня по часам</h2>
+      <div id="hours"></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    Мел пишет со скрипом · облачко-комментарий — слова лектора без звука ·
+    add кисти: <code>?sessions=k01</code> — новое занятие в <code>sessions/</code>
+  </div>
+
+  <script src="../engine/chalkboard.js"></script>
+  <script>
+    function main() {
+      var q = new URLSearchParams(location.search);
+      var file = 'sessions/k01_proizvodnaya.json';
+      if (q.get('sessions')) file = 'sessions/' + q.get('sessions') + '.json';
+      return fetch(file).then(function(r){return r.json();}).then(function(ss){
+        boot(ss);
+      }).catch(function(e){ document.getElementById('meta').textContent='ошибка: '+e.message; });
+    }
+
+    function boot(ss) {
+      var S = ss.session, st = ss.strokes || [];
+      var meta = document.getElementById('meta');
+      meta.textContent = S.schedule + ' · ' + S.title + ' · ' + S.teacher;
+      var room = ss.room || {};
+      var rl = document.getElementById('roomline');
+      rl.textContent = 'помещение по назначению: ' + (room.title || 'учебный кабинет') +
+        ' (' + (room.kind || 'class') + ') · доска-лента ∞';
+
+      // расписание часов (по номерам из strokes сгруппируем по десяткам не будем —
+      // покажем фиксированные позиции занятия)
+      var hours = document.getElementById('hours');
+      hours.innerHTML = '';
+      [
+        ['пара', S.schedule],
+        ['тема', S.title],
+        ['кабинет', room.title || 'учебный кабинет'],
+        ['мазков на доске', String(st.length)],
+        ['продолжительность', S.duration + ' с']
+      ].forEach(function(r){
+        var d = document.createElement('div');
+        d.className = 'hour';
+        d.innerHTML = '<span class="time">'+r[0]+'</span><span class="topic">'+r[1]+'</span>';
+        hours.appendChild(d);
+      });
+
+      var ctrl = Chalk.play(document.getElementById('board'), ss, { w:960, h:540 });
+      var bPlay = document.getElementById('bPlay');
+      var clock = document.getElementById('clock');
+      var play = true;
+      bPlay.onclick = function(){ toggle(); };
+      function toggle(){
+        if (play) { ctrl.pause(); play=false; bPlay.textContent='▶ играть'; }
+        else { ctrl.resume(); play=true; bPlay.textContent='⏸ пауза'; }
+      }
+      document.getElementById('bReplay').onclick = function(){ ctrl.seek(0); if(!play) toggle(); };
+      document.getElementById('bSel').onclick = function(){ ctrl.seek(0); };
+      // переключение занятия
+      document.querySelectorAll('button[data-s]').forEach(function(b){
+        b.onclick = function(){ loadSession(b.getAttribute('data-s')); };
+      });
+      // тикающие часы
+      setInterval(function(){ clock.textContent = fmt(ctrl._t); }, 250);
+      window.__ctrl = ctrl;
+    }
+    function loadSession(name){
+      fetch('sessions/'+name+'.json').then(function(r){return r.json();})
+        .then(function(ss){ window.__recycle = ss; boot(ss); })
+        .catch(function(e){ document.getElementById('meta').textContent='ошибка: '+e.message; });
+    }
+    function fmt(t){
+      var m = Math.floor(t/60), s = Math.floor(t%60);
+      return ('0'+m).slice(-2)+':'+('0'+s).slice(-2);
+    }
+    if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', main);
+    else main();
+  </script>
+</body>
+</html>

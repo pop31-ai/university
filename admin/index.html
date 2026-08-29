@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Комплекс · пульт администратора</title>
+<style>
+  body { margin:0; background:#12150f; color:#e8e8dc;
+         font-family:"Segoe UI", Arial, sans-serif; }
+  .wrap { max-width:960px; margin:0 auto; padding:28px 18px 60px; }
+  h1 { letter-spacing:2px; font-size:22px; color:#d9e8b8; }
+  .sub { color:#a5b58a; font-size:13px; margin:8px 0 24px; }
+  h2 { font-size:15px; letter-spacing:1px; color:#8aa06a; margin:26px 0 12px; }
+  .chip { display:inline-block; background:#2a3320; color:#c8d8b0; border:1px solid #3a4830;
+          border-radius:20px; padding:3px 10px; font-size:11px; margin:0 4px 4px 0; }
+  table { border-collapse:collapse; width:100%; font-size:13px; }
+  th, td { text-align:left; padding:7px 9px; border-bottom:1px solid #2a3320; vertical-align:top; }
+  th { color:#a5b58a; font-weight:600; }
+  a.run { color:#8aa06a; text-decoration:none; border-bottom:1px dashed #46553a; }
+  a.run:hover { color:#d9e8b8; }
+  .plan { background:#1a2115; border:1px solid #2a3320; border-radius:12px; padding:16px 18px; }
+  .eng { margin-bottom:6px; }
+  .foot { margin-top:30px; color:#7a8a62; font-size:12px; text-align:center; }
+  code { background:#2a3320; padding:1px 6px; border-radius:4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🗓 СЕМЕСТРОВЫЙ КОМПЛЕКС · ПУЛЬТ АДМИНИСТРАТОРА</h1>
+  <div class="sub">Базис для ИИ-руководителя и администратора: обзор движков, кабинетов,
+    занятий и задач преподавателя. Ничего не теряем — готовое = ориентиры истории экспериментов.</div>
+
+  <h2>Расписание недели</h2>
+  <div class="plan" id="schedule"></div>
+
+  <h2>Занятия по движку</h2>
+  <table id="sessions"><thead><tr>
+    <th>занятие</th><th>движок</th><th>кабинет</th><th>преподаватель</th><th>задача преподавателя</th><th></th>
+  </tr></thead><tbody></tbody></table>
+
+  <div class="foot">
+    <code>plan/semester.json</code> — план · <code>engine/*.js</code> — движки ·
+    <code>sessions/*.json</code> — конспект · <code>METHODOLOGY.md</code> — методика по преподавателям
+  </div>
+</div>
+
+<script>
+  var ENG_WIN = { chalkboard: 'Chalk', markerboard: 'Marker', corkboard: 'Cork', cinema: 'Cinema' };
+  fetch('../plan/semester.json').then(function(r){ return r.json(); })
+    .then(function(P){
+      var eng = {};
+      P.engines.forEach(function(e){ eng[e.id] = e; });
+      var room = P.rooms;
+
+      // расписание
+      var sched = document.getElementById('schedule');
+      P.schedule_week.forEach(function(slot){
+        var ss = P.sessions.filter(function(x){ return x.id === slot.session; })[0];
+        if (!ss) return;
+        var d = document.createElement('div');
+        d.className = 'eng';
+        d.innerHTML = '<b>'+slot.day+' '+slot.slot+'</b> — '+
+          '<a class="run" href="'+runHref(ss)+'">'+ss.title+'</a>'+
+          ' <span class="chip">'+ (eng[ss.engine]?eng[ss.engine].title:ss.engine) +'</span>'+
+          ' <span class="chip">'+ (room[ss.room]||ss.room) +'</span>';
+        sched.appendChild(d);
+      });
+
+      // таблица занятий
+      var tb = document.querySelector('#sessions tbody');
+      P.sessions.forEach(function(ss){
+        var tr = document.createElement('tr');
+        var eName = eng[ss.engine] ? eng[ss.engine].title : ss.engine;
+        tr.innerHTML =
+          '<td>'+(ss.archive?'🗃️ ':'')+ss.title+'</td>'+
+          '<td>'+eName+' <span class="chip">'+ss.engine+'</span></td>'+
+          '<td>'+(room[ss.room]||ss.room)+'</td>'+
+          '<td>'+ss.teacher+'</td>'+
+          '<td>'+ss.task+'</td>'+
+          '<td><a class="run" href="'+runHref(ss)+'">открыть →</a></td>';
+        tb.appendChild(tr);
+      });
+    });
+
+  function runHref(ss){
+    return '../player/field.html?sessions='+ss.id.split('_')[0] + 
+      '&engine='+ss.engine +
+      '&session='+ss.id;
+  }
+</script>
+</body>
+</html>

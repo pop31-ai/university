@@ -1,0 +1,13 @@
+# Polimuli-chalkboard · gitignore
+
+# Временные/служебные
+node_modules/
+*.log
+.DS_Store
+Thumbs.db
+*.tmp
+*.bak
+
+# Редакторы/ОС
+.vscode/
+.idea/
