@@ -2,15 +2,21 @@
  * auditorium.js — ДВИЖОК-ПОМЕЩЕНИЕ «ВИРТУАЛЬНЫЕ КАФЕДРЫ» (3D)
  * Проект polimuli-chalkboard.
  *
- * Движок-помещение: виртуальные залы 30x30 м (высота 6 м), нарисованные
- * в перспективе на чистом canvas 2D (без зависимостей). Тип зала задаётся
- * комнатой занятия (session.room.kind):
- *   auditorium — кафедра-аудитория с доской: доска, кафедра, ряды парт,
- *                лектор, окна. Мазки — мел на доске.
- *   cinema     — кинозал: большой экран, ряды кресел, затемнение.
- *                Мазки — свет на экране.
- *   stand      — стенд-экспозиция: витрины-панели, подиумы-экспонаты.
- *                Мазки — на панели (канва).
+ * Движок-помещение: залы университета, нарисованные в перспективе
+ * на чистом canvas 2D (без зависимостей). ВУЗ — инфраструктура:
+ * каждая кафедра владеет своей МОДЕЛЬЮ аудитории (метраж, доска,
+ * кафедра-подиум, колер, мебель). Конспект сессии привязан к
+ * аудитории через ss.room.model:
+ *
+ *   aud_math  — КАФЕДРА МАТЕМАТИКИ · 30×30 м · меловая доска, парты
+ *   lab_phys  — КАФЕДРА ФИЗИКИ   · 30×40 м · меловая доска, опытный стол
+ *   lab_chem  — КАФЕДРА ХИМИИ    · 30×40 м · маркерная доска, столы-колбы
+ *   cinema    — КИНОЗАЛ · 30×30 м · экран, ряды кресел, затемнение
+ *   stand     — СТЕНД-ЭКСПОЗИЦИЯ · 30×30 м · панель, подиумы
+ *
+ * «Зал по химии — и конспект по химии»: движок выбирает зал по
+ * room.model, а текст (мазки/сцены) сессии — это и есть конспект
+ * предмета этой кафедры. Логично и системно.
  *
  * Камера умеет летать по залу: обзор с места, подход к поверхности,
  * облёт. Слой духа (spirit) — строка просвещения поверх зала.
@@ -27,10 +33,11 @@
  *   spirit                                 — строка просвещения поверх зала
  *   cam                                    — точка обзора камеры по залу
  *
- * Данные strokes; room.kind выбирает зал, style.type всегда "auditorium".
+ * Данные strokes; ss.room.model выбирает зал, style.type = "auditorium".
  * api: const ctrl = Auditorium.play(canvas, session, {w,h});
  *      ctrl.pause(); ctrl.resume(); ctrl.stop(); ctrl.seek(t); ctrl.panTo(x,z,sec);
- * ВНУТРЕННИЕ РАЗМЕРЫ: зал 30 x 30 м (x — вдоль, z — поперёк), высота 6 м.
+ * ВНУТРЕННИЕ РАЗМЕРЫ: у каждой модели свой metr {w, d, h} (метраж зала);
+ * ось x — вдоль доски, z — глубина от доски к входу, y — высота.
  * ============================================================*/
 
 (function (root) {
@@ -68,105 +75,196 @@
     dark: '#3a3228'
   };
 
-  // ---------- КОМНАТЫ ----------
-  // Мир: x = вдоль зала (0 у поверхности → 30 у входа), z = поперёк (0..30),
-  // y = высота (пол 0, потолок 6).
-  var ROOMS = {
-    // Кафедра-аудитория с доской.
-    auditorium: {
-      name: 'КАФЕДРА-АУДИТОРИЯ',
-      roomKind: 'auditorium',
+  // ---------- МЕБЕЛЬ: генераторы под метраж модели ----------
+  // Парты (aud_math): ряды в глубину, по 4 колонны в поперечнике.
+  function desks(metr) {
+    var out = [];
+    var rows = Math.max(4, Math.floor((metr.d - 6) / 2.5));
+    var cols = Math.max(2, Math.floor((metr.w - 6) / 5));
+    for (var r = 0; r < rows; r++) {
+      var x = metr.w / 2 + (r - (rows - 1) / 2) * 2.5;
+      for (var c = 0; c < cols; c++) {
+        var z = 7 + c * 5;
+        out.push({ x: x, z: z, w: 3.4, d: 1.0, h: 0.42, s: (c + r) % 2 });
+      }
+    }
+    return out;
+  }
+
+  // Лабораторные столы (lab_phys / lab_chem): по 2 колонны в глубину.
+  function tables(metr) {
+    var out = [];
+    var rows = Math.max(3, Math.floor((metr.d - 10) / 3.2));
+    for (var r = 0; r < rows; r++) {
+      var x = metr.w / 2 + (r - (rows - 1) / 2) * 3.2;
+      for (var c = 0; c < 2; c++) {
+        var z = 12 + c * 7;
+        out.push({ x: x, z: z, w: 2.2, d: 1.4, h: 0.9, s: (c + r) % 2 });
+      }
+    }
+    return out;
+  }
+
+  // Ряды кресел (cinema): амфитеатр слегка поднят.
+  function seats(metr) {
+    var out = [];
+    var rows = Math.max(4, Math.floor((metr.d - 6) / 2.2));
+    var cols = Math.max(4, Math.floor((metr.w - 5) / 3.6));
+    for (var r = 0; r < rows; r++) {
+      var x = metr.w / 2 + (r - (rows - 1) / 2) * 2.2;
+      for (var c = 0; c < cols; c++) {
+        var z = 4.5 + c * 3.6;
+        out.push({ x: x, z: z, w: 2.2, d: 0.9, h: 0.9 + r * 0.05, s: (c + r) % 2 });
+      }
+    }
+    return out;
+  }
+
+  // Подиумы-экспонаты (stand).
+  function stands(metr) {
+    var out = [];
+    for (var r = 0; r < 5; r++) {
+      var x = metr.w / 2 + (r - 2) * 4.5;
+      for (var c = 0; c < 2; c++) {
+        var z = 9 + c * 12;
+        if (x >= 4 && x <= metr.w - 4) out.push({ x: x, z: z, w: 2.4, d: 2.4, h: 1.0, s: (c + r) % 2 });
+      }
+    }
+    return out;
+  }
+
+  // ---------- МОДЕЛИ ЗАЛОВ (ВУЗ = ИНФРАСТРУКТУРА КАФЕДР) ----------
+  // Мир: x = вдоль доски (0..metr.w), z = от доски к входу (0..metr.d),
+  // y = высота (пол 0, потолок metr.h).
+  // surface: доска у стены входа лектора: bxc — центр по x, bzc — глубина доски,
+  // bw — ширина доски в метрах, bly/bty — низ/верх доски, bg — цвет доски,
+  // chalk — цвет мела/маркера на доске.
+  function roomBase(o) {
+    return {
+      metr: o.metr || { w: 30, d: 30, h: 6 },
+      name: o.name,
+      cathedra: o.cathedra,          // вывеска кафедры на стене
+      wall: o.wall, wallHi: o.wallHi, wallLo: o.wallLo,
+      floor: o.floor, floorDark: o.floorDark, window: o.window, ceil: o.ceil,
+      surface: o.surface,
+      podium: o.podium,
+      furniture: o.furniture,        // desks | tables | seats | stands
+      lecturer: o.lecturer,
+      isCinema: o.isCinema,
+      spiritColor: o.spiritColor,
+      view: o.view,
+      views: o.views,
+      _furn: (o.furniture === 'desks' ? desks : o.furniture === 'tables' ? tables : o.furniture === 'seats' ? seats : stands)(o.metr || { w: 30, d: 30 })
+    };
+  }
+
+  var MODELS = {
+    // КАФЕДРА МАТЕМАТИКИ · 30×30 · меловая зелёная доска, парты, кафедра-подиум.
+    aud_math: roomBase({
+      metr: { w: 30, d: 30, h: 6 },
+      name: 'КАФЕДРА МАТЕМАТИКИ',
+      cathedra: 'Кафедра математики · меловая доска · парты',
       wall: '#c9bda4', wallHi: '#d8cdb4', wallLo: '#b4a88f',
       floor: '#8a6f4a', floorDark: '#6e5638', window: '#aee0ff', ceil: '#d7d2c4',
-      surface: { bxc: 15, bzc: 1.2, bw: 11, bly: 0.9, bty: 4.3,
+      surface: { bzc: 1.2, bw: 11, bly: 0.9, bty: 4.3,
         frame: D.frame, bg: '#2b6a24', chalk: '#f4f4f0' },
-      podium: { x: 15, z: 2.6, w: 3.6, d: 1.2, h: 1.1 },
+      podium: { z: 2.6, w: 3.6, d: 1.2, h: 1.1 },
       furniture: 'desks',
       lecturer: true,
+      spiritColor: '#ffd966',
       view: { cx: 22, cz: 15, tx: 15, tz: 1.4 },
       views: {
         'кафедра': { cx: 7.5, cz: 15, tx: 15, tz: 2 },
         'доска':   { cx: 22, cz: 15, tx: 15, tz: 1.4 },
         'облёт':   { cx: 4, cz: 4, tx: 20, tz: 20 }
       }
-    },
-    // Кинозал: экран, ряды кресел.
-    cinema: {
+    }),
+    // КАФЕДРА ФИЗИКИ · 30×40 · меловая доска, опытный стол, лабораторные столы.
+    lab_phys: roomBase({
+      metr: { w: 30, d: 40, h: 6 },
+      name: 'КАФЕДРА ФИЗИКИ',
+      cathedra: 'Кафедра физики · опытный стол · лаборатория',
+      wall: '#aebfce', wallHi: '#c2d2e0', wallLo: '#8ea2b4',
+      floor: '#6f7c8c', floorDark: '#56626f', window: '#cfe4ff', ceil: '#cdd8e2',
+      surface: { bzc: 1.2, bw: 12, bly: 0.9, bty: 4.3,
+        frame: '#3a4a5a', bg: '#1f4d6e', chalk: '#f4f4f0' },
+      podium: { z: 2.6, w: 4.0, d: 1.2, h: 1.0 },
+      furniture: 'tables',
+      lecturer: true,
+      spiritColor: '#bfe3ff',
+      view: { cx: 24, cz: 20, tx: 15, tz: 1.4 },
+      views: {
+        'кафедра': { cx: 7.5, cz: 20, tx: 15, tz: 2 },
+        'доска':   { cx: 24, cz: 20, tx: 15, tz: 1.4 },
+        'облёт':   { cx: 4, cz: 4, tx: 22, tz: 34 }
+      }
+    }),
+    // КАФЕДРА ХИМИИ · 30×40 · маркерная белая доска, столы-колбы.
+    lab_chem: roomBase({
+      metr: { w: 30, d: 40, h: 6 },
+      name: 'КАФЕДРА ХИМИИ',
+      cathedra: 'Кафедра химии · маркерная доска · столы реактивов',
+      wall: '#d8d2b8', wallHi: '#e6dfc6', wallLo: '#c2b89e',
+      floor: '#9a8b6a', floorDark: '#7b6d50', window: '#e3f0ff', ceil: '#e3ddca',
+      surface: { bzc: 1.2, bw: 12, bly: 0.9, bty: 4.3,
+        frame: '#6a5a3a', bg: '#f6f4ec', chalk: '#14456b' },
+      podium: { z: 2.6, w: 4.0, d: 1.2, h: 1.0 },
+      furniture: 'tables',
+      lecturer: true,
+      spiritColor: '#ffe082',
+      view: { cx: 24, cz: 20, tx: 15, tz: 1.4 },
+      views: {
+        'кафедра': { cx: 7.5, cz: 20, tx: 15, tz: 2 },
+        'доска':   { cx: 24, cz: 20, tx: 15, tz: 1.4 },
+        'облёт':   { cx: 4, cz: 4, tx: 22, tz: 34 }
+      }
+    }),
+    // КИНОЗАЛ: экран, ряды кресел, затемнение.
+    cinema: roomBase({
+      metr: { w: 30, d: 30, h: 6 },
       name: 'КИНОЗАЛ',
-      roomKind: 'cinema',
+      cathedra: 'Кинозал университета · экран, ряды кресел',
       wall: '#23252b', wallHi: '#2c2f37', wallLo: '#1a1c21',
       floor: '#2a2a2a', floorDark: '#1c1c1c', window: '#0f1114', ceil: '#1f2228',
-      surface: { bxc: 15, bzc: 0.8, bw: 20, bly: 0.9, bty: 5.1,
+      surface: { bzc: 0.8, bw: 20, bly: 0.9, bty: 5.1,
         frame: '#3a3f49', bg: '#eef1f4', chalk: '#1c2520' },
+      podium: null,
       furniture: 'seats',
       lecturer: false,
+      isCinema: true,
+      spiritColor: '#ffd966',
       view: { cx: 24, cz: 15, tx: 15, tz: 0.8 },
       views: {
         'зритель': { cx: 24, cz: 15, tx: 15, tz: 0.8 },
         'экран':   { cx: 8, cz: 15, tx: 15, tz: 0.8 },
         'облёт':   { cx: 3, cz: 3, tx: 22, tz: 22 }
       }
-    },
-    // Стенд-экспозиция: панель, подиумы.
-    stand: {
+    }),
+    // СТЕНД-ЭКСПОЗИЦИЯ: панель, подиумы.
+    stand: roomBase({
+      metr: { w: 30, d: 30, h: 6 },
       name: 'СТЕНД-ЭКСПОЗИЦИЯ',
-      roomKind: 'stand',
+      cathedra: 'Стенд-экспозиция университета · витрина и экспонаты',
       wall: '#e8e2d4', wallHi: '#f2ecdd', wallLo: '#d6cfbd',
       floor: '#b8a98c', floorDark: '#9c8d72', window: '#dbe8ff', ceil: '#efe9d8',
-      surface: { bxc: 15, bzc: 1.0, bw: 14, bly: 0.8, bty: 4.6,
+      surface: { bzc: 1.0, bw: 14, bly: 0.8, bty: 4.6,
         frame: '#a8986b', bg: '#fdfbf2', chalk: '#3a3228' },
+      podium: null,
       furniture: 'stands',
       lecturer: false,
+      spiritColor: '#8a2c1e',
       view: { cx: 24, cz: 15, tx: 15, tz: 1.0 },
       views: {
         'витрина': { cx: 24, cz: 15, tx: 15, tz: 1.0 },
         'панель':  { cx: 10, cz: 15, tx: 15, tz: 1.0 },
         'облёт':   { cx: 4, cz: 4, tx: 20, tz: 20 }
       }
-    }
+    })
   };
 
-  // Ряды парт (auditorium): x от 4.5 до 27, шаг 2.5; 4 места в поперечнике.
-  function desks() {
-    var out = [];
-    for (var r = 0; r < 9; r++) {
-      var x = 4.5 + r * 2.5;
-      for (var c = 0; c < 4; c++) {
-        var z = 7.5 + c * 5;
-        out.push({ x: x, z: z, w: 3.4, d: 1.0, h: 0.42, s: (c + r) % 2 });
-      }
-    }
-    return out;
-  }
-  var DESKS = desks();
-
-  // Ряды кресел (cinema): 10 рядов × 6 мест, амфитеатр слегка поднят.
-  function seats() {
-    var out = [];
-    for (var r = 0; r < 10; r++) {
-      var x = 6 + r * 2.2;
-      for (var c = 0; c < 6; c++) {
-        var z = 4.5 + c * 4.2;
-        out.push({ x: x, z: z, w: 2.6, d: 0.9, h: 0.9 + r * 0.05, s: (c + r) % 2 });
-      }
-    }
-    return out;
-  }
-  var SEATS = seats();
-
-  // Подиумы-экспонаты (stand): расставлены по полу.
-  function stands() {
-    var out = [];
-    for (var r = 0; r < 5; r++) {
-      var x = 5 + r * 4.5;
-      for (var c = 0; c < 2; c++) {
-        var z = 9 + c * 12;
-        out.push({ x: x, z: z, w: 2.4, d: 2.4, h: 1.0, s: (c + r) % 2 });
-      }
-    }
-    return out;
-  }
-  var STANDS = stands();
+  // Псевдонимы: старые kind'ы → модели (обратная совместимость).
+  MODELS.auditorium = MODELS.aud_math;
+  MODELS.lab = MODELS.lab_phys;
 
   // ---------- ПРОЕКЦИЯ ----------
   function makeCam(cx, cz, tx, tz) {
@@ -205,14 +303,15 @@
     if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1; ctx.stroke(); }
   }
 
-  // ---------- РИСОВАНИЕ КОМНАТЫ ----------
-  function drawRoom(ctx, cam, W, H, R, isCinema) {
+  // ---------- РИСОВАНИЕ КОМНАТЫ (по метражу модели) ----------
+  function drawRoom(ctx, cam, W, H, R) {
     var c = cam;
-    // Задняя стена (z = 30, от x=0..30, y=0..6)
-    var p0 = project(c, 0, 0, 30, W, H);
-    var p1 = project(c, 30, 0, 30, W, H);
-    var p2 = project(c, 0, 6, 30, W, H);
-    var p3 = project(c, 30, 6, 30, W, H);
+    var m = R.metr;
+    // Задняя стена (z = m.d, от x=0..m.w, y=0..m.h)
+    var p0 = project(c, 0, 0, m.d, W, H);
+    var p1 = project(c, m.w, 0, m.d, W, H);
+    var p2 = project(c, 0, m.h, m.d, W, H);
+    var p3 = project(c, m.w, m.h, m.d, W, H);
     if (p0 && p1) {
       drawPoly(ctx, [p0, p1, p3, p2], R.wall, null);
       ctx.strokeStyle = rgba(R.wallHi, 1); ctx.lineWidth = 2;
@@ -221,19 +320,19 @@
       ctx.beginPath(); ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p3[0], p3[1]); ctx.stroke();
     }
 
-    // Пол: сетка квадратов 3x3 м
-    for (var gx = 0; gx <= 10; gx++) {
+    // Пол: сетка квадратов 3x3 м (по метражу)
+    for (var gx = 0; gx <= Math.round(m.w / 3); gx++) {
       var a = project(c, gx * 3, 0, 0, W, H);
-      var b = project(c, gx * 3, 0, 30, W, H);
+      var b = project(c, gx * 3, 0, m.d, W, H);
       if (a && b) {
         ctx.strokeStyle = rgba(R.floorDark, 0.7);
         ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
       }
     }
-    for (var gz = 0; gz <= 10; gz++) {
+    for (var gz = 0; gz <= Math.round(m.d / 3); gz++) {
       var c1 = project(c, 0, 0, gz * 3, W, H);
-      var c2 = project(c, 30, 0, gz * 3, W, H);
+      var c2 = project(c, m.w, 0, gz * 3, W, H);
       if (c1 && c2) {
         ctx.strokeStyle = rgba(R.floorDark, 0.7);
         ctx.lineWidth = 1;
@@ -244,27 +343,54 @@
     ctx.fillRect(0, H - 2, W, 2);
 
     // Затемнение края для кино (тёмный зал)
-    if (isCinema) {
+    if (R.isCinema) {
       ctx.fillStyle = 'rgba(0,0,0,0.25)';
       ctx.fillRect(0, 0, W, H);
     }
 
-    // Окна на стенах x=0 и x=30 (по 3 с каждой стороны)
+    // Окна на стенах x=0 и x=m.w (по 3 с каждой стороны, по глубине зала)
     for (var w = 0; w < 3; w++) {
-      var lb = project(c, 0.1, 2.6, 6 + w * 9, W, H);
-      var lt = project(c, 0.1, 4.0, 6 + w * 9, W, H);
-      var rb = project(c, 29.9, 2.6, 6 + w * 9, W, H);
-      var rt = project(c, 29.9, 4.0, 6 + w * 9, W, H);
+      var wz = 6 + w * Math.max(4, (m.d - 12) / 2);
+      var lb = project(c, 0.1, 2.6, wz, W, H);
+      var lt = project(c, 0.1, 4.0, wz, W, H);
+      var rb = project(c, m.w - 0.1, 2.6, wz, W, H);
+      var rt = project(c, m.w - 0.1, 4.0, wz, W, H);
       if (lb && rb) {
         drawPoly(ctx, [lb, rb, rt, lt], rgba(R.window, 0.8), null);
       }
     }
   }
 
-  // ---------- ПОВЕРХНОСТЬ (доска/экран/панель) ----------
+  // ---------- ВЫВЕСКА КАФЕДРЫ (табличка над доской) ----------
+  function drawCathedra(ctx, cam, W, H, R) {
+    if (!R.cathedra) return;
+    var m = R.metr;
+    var cx = m.w / 2;
+    // табличка выше доски: от bty+0.15 до bty+0.6 (по высоте стены)
+    var y0 = Math.min(s.bty + 0.7, m.h - 0.8);
+    var p0 = project(cam, cx - 4.5, y0, s.bzc, W, H);
+    var p1 = project(cam, cx + 4.5, y0, s.bzc, W, H);
+    var p2 = project(cam, cx + 4.5, y0 + 0.55, s.bzc, W, H);
+    var p3 = project(cam, cx - 4.5, y0 + 0.55, s.bzc, W, H);
+    if (!p0) return;
+    drawPoly(ctx, [p0, p1, p2, p3], 'rgba(20,25,32,0.78)', null);
+    var pc = project(cam, cx, y0 + 0.27, s.bzc, W, H);
+    if (!pc) return;
+    ctx.save();
+    ctx.fillStyle = R.spiritColor || '#ffd966';
+    ctx.font = '600 ' + Math.max(9, Math.min(15, pc[2] * 0.012)) + 'px "Segoe UI", Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(R.cathedra, pc[0], pc[1]);
+    ctx.restore();
+  }
+
+  // ---------- ПОВЕРХНОСТЬ (доска/экран/панель) + МЕТРАЖНАЯ ШКАЛА ----------
   function drawSurface(ctx, cam, W, H, R) {
     var s = R.surface;
-    var ax0 = s.bxc - s.bw / 2 - 0.3, ax1 = s.bxc + s.bw / 2 + 0.3;
+    var m = R.metr;
+    var bxc = m.w / 2;
+    var ax0 = bxc - s.bw / 2 - 0.3, ax1 = bxc + s.bw / 2 + 0.3;
     var ay0 = s.bly - 0.3, ay1 = s.bty + 0.3;
     var f0 = project(cam, ax0, ay0, s.bzc, W, H);
     var f1 = project(cam, ax1, ay0, s.bzc, W, H);
@@ -273,10 +399,10 @@
     if (!f0 || !f1) return null;
     drawPoly(ctx, [f0, f1, f2, f3], s.frame, null);
 
-    var b0 = project(cam, s.bxc - s.bw / 2, s.bly, s.bzc, W, H);
-    var b1 = project(cam, s.bxc + s.bw / 2, s.bly, s.bzc, W, H);
-    var b2 = project(cam, s.bxc + s.bw / 2, s.bty, s.bzc, W, H);
-    var b3 = project(cam, s.bxc - s.bw / 2, s.bty, s.bzc, W, H);
+    var b0 = project(cam, bxc - s.bw / 2, s.bly, s.bzc, W, H);
+    var b1 = project(cam, bxc + s.bw / 2, s.bly, s.bzc, W, H);
+    var b2 = project(cam, bxc + s.bw / 2, s.bty, s.bzc, W, H);
+    var b3 = project(cam, bxc - s.bw / 2, s.bty, s.bzc, W, H);
     if (!b0) return null;
     drawPoly(ctx, [b0, b1, b2, b3], s.bg, null);
     // зерно поверхности
@@ -287,14 +413,35 @@
       var by = (b3[1] - b0[1]) * noise() + b0[1];
       ctx.fillRect(bx, by, 1 + noise() * 3, 1 + noise() * 2);
     }
+
+    // метражная шкала: деления по 1 м вдоль нижней кромки доски
+    var steps = Math.min(24, Math.max(6, Math.round(s.bw)));
+    var tickCol = (s.bg === '#fdfbf2' || s.bg === '#f6f4ec' || s.chalk === '#1c2520') ? '#8a8a7a' : '#d8d8c0';
+    ctx.save();
+    ctx.strokeStyle = rgba(tickCol, 0.7);
+    ctx.lineWidth = 1;
+    ctx.fillStyle = rgba(tickCol, 0.9);
+    ctx.font = '500 ' + Math.max(7, Math.min(11, (b1[2] || 20) * 0.008)) + 'px "Segoe UI", Arial, sans-serif';
+    ctx.textAlign = 'center';
+    var tickH = (b0[1] - b3[1]) * 0.03;      // высота штриха под нижней кромкой
+    for (var st = 0; st <= steps; st++) {
+      if (st % 2 !== 0) continue;
+      var fr = st / steps;
+      var fx = b0[0] + (b1[0] - b0[0]) * fr;
+      var fy = b0[1] + (b1[1] - b0[1]) * fr;
+      ctx.beginPath(); ctx.moveTo(fx, fy); ctx.lineTo(fx, fy + Math.max(2, tickH)); ctx.stroke();
+      ctx.fillText(String(st), fx, fy + Math.max(10, tickH * 3));
+    }
+    ctx.restore();
+
     return { b0: b0, b1: b1, b2: b2, b3: b3 };
   }
 
   // ---------- МЕБЕЛЬ ----------
-  function drawDesks(ctx, cam, W, H) {
+  function drawDesks(ctx, cam, W, H, R) {
     var noise = makeNoise(21);
-    for (var i = 0; i < DESKS.length; i++) {
-      var dk = DESKS[i];
+    for (var i = 0; i < R._furn.length; i++) {
+      var dk = R._furn[i];
       var p0 = project(cam, dk.x - dk.w / 2, dk.h, dk.z - dk.d / 2, W, H);
       var p1 = project(cam, dk.x + dk.w / 2, dk.h, dk.z - dk.d / 2, W, H);
       var p2 = project(cam, dk.x + dk.w / 2, dk.h, dk.z + dk.d / 2, W, H);
@@ -314,9 +461,41 @@
     }
   }
 
-  function drawSeats(ctx, cam, W, H) {
-    for (var i = 0; i < SEATS.length; i++) {
-      var s = SEATS[i];
+  function drawTables(ctx, cam, W, H, R) {
+    for (var i = 0; i < R._furn.length; i++) {
+      var tb = R._furn[i];
+      var p0 = project(cam, tb.x - tb.w / 2, tb.h, tb.z - tb.d / 2, W, H);
+      var p1 = project(cam, tb.x + tb.w / 2, tb.h, tb.z - tb.d / 2, W, H);
+      var p2 = project(cam, tb.x + tb.w / 2, tb.h, tb.z + tb.d / 2, W, H);
+      var p3 = project(cam, tb.x - tb.w / 2, tb.h, tb.z + tb.d / 2, W, H);
+      if (!p0 || !p1) continue;
+      drawPoly(ctx, [p0, p1, p2, p3], tb.s ? '#5c7a60' : '#4a6650', null);
+      var e0 = project(cam, tb.x - tb.w / 2, 0, tb.z - tb.d / 2, W, H);
+      var e1 = project(cam, tb.x + tb.w / 2, 0, tb.z - tb.d / 2, W, H);
+      var f1 = project(cam, tb.x + tb.w / 2, 0, tb.z + tb.d / 2, W, H);
+      var f0 = project(cam, tb.x - tb.w / 2, 0, tb.z + tb.d / 2, W, H);
+      if (e0 && e1) drawPoly(ctx, [e0, e1, f1, f0], 'rgba(40,50,44,0.4)', null);
+      // прибор на столе: маленький кубик
+      if (tb.s) {
+        var qx = project(cam, tb.x, tb.h + 0.28, tb.z, W, H);
+        if (qx) {
+          ctx.fillStyle = '#2a4a6e';
+          ctx.beginPath(); ctx.arc(qx[0], qx[1], Math.max(2, qx[2] * 0.012), 0, 7); ctx.fill();
+        }
+      } else {
+        // колба для химии / цилиндр для физики
+        var q0 = project(cam, tb.x - 0.18, tb.h + 0.05, tb.z - 0.15, W, H);
+        var q1 = project(cam, tb.x + 0.18, tb.h + 0.05, tb.z - 0.15, W, H);
+        var q2 = project(cam, tb.x + 0.18, tb.h + 0.5, tb.z + 0.05, W, H);
+        var q3 = project(cam, tb.x - 0.18, tb.h + 0.5, tb.z + 0.05, W, H);
+        if (q0 && q1) drawPoly(ctx, [q0, q1, q2, q3], R.spiritColor === '#ffe082' ? '#a5d8a5' : '#aee0ff', null);
+      }
+    }
+  }
+
+  function drawSeats(ctx, cam, W, H, R) {
+    for (var i = 0; i < R._furn.length; i++) {
+      var s = R._furn[i];
       var p0 = project(cam, s.x - s.w / 2, s.h, s.z - s.d / 2 - 0.4, W, H);
       var p1 = project(cam, s.x + s.w / 2, s.h, s.z - s.d / 2 - 0.4, W, H);
       var p2 = project(cam, s.x + s.w / 2, s.h, s.z + s.d / 2 - 0.4, W, H);
@@ -331,23 +510,21 @@
     }
   }
 
-  function drawStands(ctx, cam, W, H) {
+  function drawStands(ctx, cam, W, H, R) {
     var noise = makeNoise(13);
-    for (var i = 0; i < STANDS.length; i++) {
-      var s = STANDS[i];
+    for (var i = 0; i < R._furn.length; i++) {
+      var s = R._furn[i];
       var p0 = project(cam, s.x - s.w / 2, s.h, s.z - s.d / 2, W, H);
       var p1 = project(cam, s.x + s.w / 2, s.h, s.z - s.d / 2, W, H);
       var p2 = project(cam, s.x + s.w / 2, s.h, s.z + s.d / 2, W, H);
       var p3 = project(cam, s.x - s.w / 2, s.h, s.z + s.d / 2, W, H);
       if (!p0 || !p1) continue;
       drawPoly(ctx, [p0, p1, p2, p3], s.s ? '#d6cfbd' : '#c8c0a8', null);
-      // тень-основание
       var e0 = project(cam, s.x - s.w / 2, 0, s.z - s.d / 2, W, H);
       var e1 = project(cam, s.x + s.w / 2, 0, s.z - s.d / 2, W, H);
       var f1 = project(cam, s.x + s.w / 2, 0, s.z + s.d / 2, W, H);
       var f0 = project(cam, s.x - s.w / 2, 0, s.z + s.d / 2, W, H);
       if (e0 && e1) drawPoly(ctx, [e0, e1, f1, f0], 'rgba(120,100,70,0.4)', null);
-      // экспонат сверху: маленький параллелепипед
       var eX = project(cam, s.x - 0.4, s.h + 0.35, s.z, W, H);
       var eY = project(cam, s.x + 0.4, s.h + 0.35, s.z, W, H);
       var eZ1 = project(cam, s.x, s.h + 0.7, s.z - 0.3, W, H);
@@ -362,15 +539,16 @@
   }
 
   function drawFurniture(ctx, cam, W, H, R) {
-    if (R.furniture === 'desks') drawDesks(ctx, cam, W, H);
-    else if (R.furniture === 'seats') drawSeats(ctx, cam, W, H);
-    else if (R.furniture === 'stands') drawStands(ctx, cam, W, H);
+    if (R.furniture === 'desks') drawDesks(ctx, cam, W, H, R);
+    else if (R.furniture === 'tables') drawTables(ctx, cam, W, H, R);
+    else if (R.furniture === 'seats') drawSeats(ctx, cam, W, H, R);
+    else if (R.furniture === 'stands') drawStands(ctx, cam, W, H, R);
   }
 
   // ---------- ЛЕКТОР ----------
   function drawLecturer(ctx, cam, W, H, t, R) {
-    if (!R.lecturer) return;
-    var x = R.podium.x, z = R.podium.z + R.podium.d / 2 - 0.4;
+    if (!R.lecturer || !R.podium) return;
+    var x = R.metr.w / 2, z = R.podium.z + R.podium.d / 2 - 0.4;
     var head = project(cam, x, 1.65, z, W, H);
     if (!head) return;
     ctx.fillStyle = D.dark;
@@ -387,13 +565,21 @@
       ctx.strokeStyle = D.dark; ctx.lineWidth = 3;
       ctx.beginPath(); ctx.moveTo(hL[0], hL[1]); ctx.lineTo(hR[0], hR[1]); ctx.stroke();
     }
+    // кафедра-подиум позади лектора
+    var pd = R.podium;
+    var k0 = project(cam, x - pd.w / 2, pd.h, pd.z, W, H);
+    var k1 = project(cam, x + pd.w / 2, pd.h, pd.z, W, H);
+    var k2 = project(cam, x + pd.w / 2, pd.h, pd.z + pd.d, W, H);
+    var k3 = project(cam, x - pd.w / 2, pd.h, pd.z + pd.d, W, H);
+    if (k0 && k1) drawPoly(ctx, [k0, k1, k2, k3], D.frame, null);
   }
 
   // ---------- ПОВЕРХНОСТЬ: КООРДИНАТЫ МАЗКОВ ----------
   // Мазки в плоскостных координатах: x 0..bw по ширине, y 0..(bty-bly).
   function facePx(cam, R, x, yp, W, H) {
     var s = R.surface;
-    var mx = s.bxc - s.bw / 2 + x;
+    var bxc = R.metr.w / 2;
+    var mx = bxc - s.bw / 2 + x;
     var my = s.bty - 1 - yp;
     return project(cam, mx, my, s.bzc, W, H);
   }
@@ -417,7 +603,7 @@
         ctx.font = '600 17px "Segoe UI", Arial, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillStyle = R.roomKind === 'stand' ? '#8a2c1e' : (R.roomKind === 'cinema' ? '#ffd966' : '#ffd966');
+        ctx.fillStyle = R.spiritColor || '#ffd966';
         ctx.strokeStyle = 'rgba(0,0,0,0.5)';
         ctx.lineWidth = 3;
         ctx.strokeText(s.text || '', W / 2, H * (s.yP || 0.12));
@@ -516,9 +702,8 @@
     var m = ss.session || {};
     var total = m.duration || 90;
     var strokes = ss.strokes || [];
-    var roomKey = (ss.room && ss.room.kind) || 'auditorium';
-    var R = ROOMS[roomKey] || ROOMS.auditorium;
-    var isCinema = roomKey === 'cinema';
+    var roomKey = (ss.room && (ss.room.model || ss.room.kind)) || 'aud_math';
+    var R = MODELS[roomKey] || MODELS.aud_math;
 
     var ctrl = {
       _t: 0, _speed: 1, _running: true,
@@ -567,8 +752,9 @@
       ctx.clearRect(0, 0, W, H);
       ctx.fillStyle = '#17181a';
       ctx.fillRect(0, 0, W, H);
-      drawRoom(ctx, cam, W, H, R, isCinema);
+      drawRoom(ctx, cam, W, H, R);
       drawSurface(ctx, cam, W, H, R);
+      drawCathedra(ctx, cam, W, H, R);
       drawFurniture(ctx, cam, W, H, R);
       drawLecturer(ctx, cam, W, H, t, R);
       drawStrokes(ctx, ss, cam, W, H, t, R);
@@ -576,7 +762,7 @@
       ctx.globalAlpha = 0.85;
       ctx.font = '14px "Segoe UI", Arial, sans-serif';
       ctx.fillStyle = '#eef1f4';
-      ctx.fillText(R.name + ' · ' + sessTitle + ' · ' + Math.round(t) + 'с', 14, 24);
+      ctx.fillText(R.name + ' · ' + R.metr.w + '×' + R.metr.d + ' м · ' + sessTitle + ' · ' + Math.round(t) + 'с', 14, 24);
       ctx.restore();
       ctrl._raf = requestAnimationFrame(drawFrame);
     }
@@ -610,4 +796,5 @@
   }
 
   Auditorium.play = play;
+  Auditorium.MODELS = MODELS;
 })(typeof window !== 'undefined' ? window : this);
