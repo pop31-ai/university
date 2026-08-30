@@ -209,7 +209,7 @@
 
     function currentWin(name){ return ENGINES[name] && window[ENGINES[name].win]; }
 
-    function start(id, engineName){
+    function start(id, engineName, seekTo){
       var r = SESSIONS[id];
       var eName = engineName || r.engine;
       var e = ENGINES[eName];
@@ -227,6 +227,7 @@
               'движок ' + eName;
             ctrl = runner.play(canvas, ss, { w:960, h:540 });
             curDur = (ss.session && ss.session.duration) || 0;
+            if (seekTo != null && ctrl && ctrl.seek) ctrl.seek(seekTo);
             document.getElementById('bPause').textContent = '⏸ пауза';
             playing = true;
           })
@@ -344,11 +345,12 @@
     var q = new URLSearchParams(location.search);
     var startId = q.get('sessions') || 'k01';
     var startEngine = q.get('engine') || null;
+    var seekTo = q.has('t') ? parseFloat(q.get('t')) : null;
     if (SESSIONS[startId]) pick.value = startId;
     if (q.get('semester') === '1') {
       loadSemester(function(){ if (SEMESTER && SEMESTER.length) plPlay(0); });
     } else {
-      start(startId, startEngine);
+      start(startId, startEngine, seekTo);
     }
   </script>
 </body>

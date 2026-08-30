@@ -90,6 +90,14 @@ function makeRef(zoneIdx, title) {
   return { t: 0, dur: 1, kind: 'ref', ref: title, zone: zoneIdx };
 }
 
+// ---- плашка виртуального помощника (опциональная реакция поверх зоны) ----
+function makeAttention(zoneIdx, label, t, sec) {
+  return {
+    t, dur: sec || 3, kind: 'box', x: 40, y: 40, w: 620, h: 64,
+    color: COLOR.blue, zone: zoneIdx
+  };
+}
+
 // ---- вопрос в зал (паттерн: вопрос → варианты → верный → почему) ----
 function addQuestion(q, zoneIdx, t0) {
   const out = [];
@@ -117,6 +125,9 @@ function addQuestion(q, zoneIdx, t0) {
   push(layoutStroke(col, 'text', { s: 'почему так / почему не другие:', x: 60, y: 460, font: 'bold 17px "Segoe UI"', color: COLOR.blue, dur: d }));
   push(layoutStroke(col, 'text', { s: q.why, x: 60, y: 500, font: 'bold 17px "Segoe UI"', color: COLOR.chalk, dur: d + 1 }));
   t += 1;
+  // реприза завершается возгласами одобрения (реакция зала поверх всего)
+  push(makeSpirit('возгласы одобрения · зал с нами', t));
+  t += 0.5;
   return { out, t };
 }
 
@@ -168,6 +179,13 @@ function buildSession(lesson) {
       const hs = makeHead(active, b.head);
       hs.forEach(h => { h.t = t; strokes.push(h); });
       t += 4;
+      return;
+    }
+    if (b.helper) {
+      // опциональный виртуальный помощник: спасает ситуацию, не подменяя профессора
+      strokes.push(makeAttention(active, '🤖 виртуальный помощник', t, 2.6));
+      strokes.push(makeSpirit('🤖 ' + b.helper, t + 1.0));
+      t += 4.6;
       return;
     }
     if (b.spirit) {

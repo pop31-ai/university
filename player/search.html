@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Поиск по роликам · текст вместо видео</title>
+<style>
+  * { box-sizing:border-box; }
+  body { margin:0; background:#141710; color:#eef0e6;
+         font-family:"Segoe UI", Arial, sans-serif; }
+  .top { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap;
+         padding:14px 18px; border-bottom:1px solid #2a3320; }
+  .top h1 { font-size:16px; margin:0; letter-spacing:1px; color:#d9e8b8; }
+  .top .cap { color:#7a8a62; font-size:11px; }
+  .wrap { max-width:980px; margin:0 auto; padding:16px 18px; }
+  #q { width:100%; font-size:18px; padding:12px 14px; border-radius:12px;
+       border:1px solid #46553a; background:#1a2115; color:#eef0e6; outline:none; }
+  #q:focus { border-color:#8aa06a; }
+  #q::placeholder { color:#7a8a62; }
+  .cats { display:flex; gap:6px; flex-wrap:wrap; margin:10px 0 4px; }
+  .ct { background:#20271a; color:#a5b58a; border:1px solid #38462c; border-radius:18px;
+        padding:5px 10px; font-size:11px; cursor:pointer; user-select:none; }
+  .ct.on { border-color:#8aa06a; background:#28351f; color:#d9e8b8; }
+  .meta { font-size:11px; color:#7a8a62; margin:8px 2px 10px; }
+  .hit { background:#1a2115; border:1px solid #2a3320; border-left:4px solid #46553a;
+         border-radius:10px; padding:10px 14px; margin:8px 0; cursor:pointer; }
+  .hit:hover { border-color:#8aa06a; border-left-color:#8aa06a; }
+  .hit .row1 { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .hit .id { background:#28351f; color:#d9e8b8; border-radius:6px; padding:2px 8px; font-size:12px; }
+  .hit .mc { color:#ffd966; font-family:Consolas,monospace; font-size:11px; }
+  .hit .kind { color:#a8d5ff; font-size:11px; }
+  .hit .sc, .hit .st { font-family:Consolas,monospace; font-size:12px; color:#8aa06a; }
+  .hit .txt { color:#cdd8b0; margin-top:4px; font-size:13px; line-height:1.45; }
+  .hit .tm { color:#ffd966; font-family:Consolas,monospace; font-size:12px; font-weight:bold; margin-left:auto; }
+  .hit .tg { color:#a5b58a; font-size:11px; margin-left:6px; }
+  mark { background:#4a3d14; color:#ffe08a; border-radius:3px; padding:0 2px; }
+  .none { color:#7a8a62; font-size:13px; padding:18px 4px; }
+  .foot { text-align:center; color:#7a8a62; font-size:11px; padding:14px 14px 26px; }
+  .foot a { color:#8aa06a; }
+  .hint { color:#7a8a62; font-size:11px; margin:6px 2px 12px; }
+  .hint b { color:#a5b58a; }
+</style>
+</head>
+<body>
+  <div class="top">
+    <h1>🔎 ПОИСК ПО РОЛИКАМ</h1>
+    <span class="cap">сила курса: весь материал — текст (мазки + сцены + дух). Ищем по словам и по смыслу, идём к таймкоду.</span>
+  </div>
+  <div class="wrap">
+    <input id="q" type="search" placeholder="например:  производная ·  погас свет ·  запнулся ·  возрастание" autofocus>
+    <div class="cats" id="cats"></div>
+    <div class="hint" id="hint"></div>
+    <div class="meta" id="meta">—</div>
+    <div id="out"></div>
+  </div>
+  <div class="foot">
+    переход к ролику в <a href="field.html?sessions=k01">походном конспекте</a> ·
+    индекс: plan/search_index.js → plan/search.json
+  </div>
+
+<script>
+(function(){
+  var index = { count: 0, cats: [], rows: [] };
+  var qEl = document.getElementById('q');
+  var outEl = document.getElementById('out');
+  var metaEl = document.getElementById('meta');
+  var catsEl = document.getElementById('cats');
+  var hintEl = document.getElementById('hint');
+
+  function norm(s){ return (s||'').toLowerCase().replace(/ё/g,'е').replace(/\s+/g,' ').trim(); }
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function catEm(t){ var m = /^(.)/.exec(t); return m ? m[1] : ''; }
+
+  var selectedCats = {};
+
+  function fmt(t){
+    var m = Math.floor(t/60), s = Math.floor(t%60);
+    return ('0'+m).slice(-2)+':'+('0'+s).slice(-2);
+  }
+
+  function reloadCats(){
+    catsEl.innerHTML = '';
+    index.cats.forEach(function(c){
+      var b = document.createElement('span');
+      b.className = 'ct' + (selectedCats[c] ? ' on' : '');
+      b.textContent = c;
+      b.onclick = function(){
+        var name = c.split(' ').slice(1).join(' ');
+        if (selectedCats[c]) delete selectedCats[c]; else selectedCats[c] = true;
+        b.classList.toggle('on');
+        draw();
+      };
+      catsEl.appendChild(b);
+    });
+  }
+
+  function hitMark(markers, html){
+    var n = norm(markers);
+    var words = norm(qEl.value).replace(/[^a-zа-яе0-9\- ]/g,' ').split(' ').filter(Boolean);
+    if (!words.length) return html;
+    words.forEach(function(w){
+      if (w.length < 2) return;
+      var re = new RegExp('(^|[^a-zа-яе0-9])(' + w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')','gi');
+      n = n.replace(re, function(all, pre, m){ return pre + '\u0001' + m + '\u0002'; });
+    });
+    // применить к оригинальному HTML по позициям нормированного текста — упростим:
+    return html;
+  }
+
+  function spanOf(t){
+    return '<span class="tm" title="момент ролика">' + fmt(t) + '</span>';
+  }
+
+  function renderHit(r){
+    var cats = (r.tags||[]).map(function(t){ return '<span class="tg">'+esc(t)+'</span>'; }).join('');
+    var metaLine = r.kind === 'сцена'
+      ? '<span class="kind">сцена</span><span class="sc">ф'+(r.phase||'')+'</span>'
+      : '<span class="kind">мазок</span>';
+    return '<div class="hit" data-id="'+esc(r.id)+'" data-t="'+r.t+'">' +
+        '<div class="row1">' +
+          '<span class="id">'+esc(r.id)+'</span>' +
+          '<span class="mc">'+esc(r.title)+'</span>' +
+          metaLine +
+          (r.week ? '<span class="kind">нед'+r.week+' п'+r.pair+'</span>' : '') +
+          spanOf(r.t) + '</div>' +
+        (r.phase||r.name ? '<div class="st">' + esc((r.phase?('фаза '+r.phase+' · '):'')) + esc(r.name||'') + '</div>' : '') +
+        '<div class="txt">'+esc(r.text)+'</div>' +
+        (cats?'<div>'+cats+'</div>':'') +
+      '</div>';
+  }
+
+  function match(r){
+    // фильтр по выбранным категориям
+    var chosen = Object.keys(selectedCats);
+    if (chosen.length) {
+      var ok = chosen.every(function(c){ return (r.tags||[]).indexOf(c) >= 0; });
+      if (!ok) return false;
+    }
+    var q = norm(qEl.value);
+    if (!q) return true;
+    var flat = norm((r.text||'')+' '+(r.title||'')+' '+(r.id||'')+' '+(r.name||'')+' '+
+      ((r.tags||[]).join(' '))+' '+((r.conspect)?(r.conspect+' '):''));
+    var words = q.replace(/[^a-zа-яе0-9\- ]/g,' ').split(' ').filter(Boolean);
+
+    // 1) буквальное совпадение (плюс префикс: «запн» находит «запнулся», «возраст» → «возрастание»)
+    var litOk = words.every(function(w){
+      if (flat.indexOf(w) >= 0) return true;
+      if (w.length >= 4) {
+        // ищем слово, начинающееся с запроса (граница слова)
+        var re = new RegExp('(?:^| )(' + w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '[а-яеё]{0,20})(?: |$)', 'i');
+        if (re.test(flat)) return true;
+      }
+      return false;
+    });
+    if (litOk) return true;
+
+    // 2) смысловое совпадение: слово из запроса попадает в синонимы категории, которая есть у строки
+    return words.some(function(w){
+      return Object.keys(index.synon || {}).some(function(cat){
+        return (index.synon[cat]||[]).some(function(syn){
+          var sn = norm(syn);
+          if (sn === w) return (r.tags||[]).indexOf(cat) >= 0;
+          if (sn.indexOf(w) === 0 && w.length >= 4) return (r.tags||[]).indexOf(cat) >= 0;
+          return false;
+        });
+      });
+    });
+  }
+
+  function draw(){
+    var q = norm(qEl.value);
+    var list = index.rows.filter(match);
+    hintEl.innerHTML = '';
+    if (!q && !Object.keys(selectedCats).length) {
+      hintEl.innerHTML = 'Попробуйте: <b>производная</b>, <b>скорость</b>, <b>возгласы одобрения</b>, <b>погас свет</b>, <b>затруднение</b>, <b>формула f′=…</b> — или включите категорию ниже.';
+    }
+    metaEl.textContent = index.count + ' строк в индексе · найдено ' + list.length;
+    if (!list.length) { outEl.innerHTML = '<div class="none">ничего не нашлось — попробуйте короче или включите категорию</div>'; return; }
+    var html = '';
+    list.slice(0, 60).forEach(function(r){ html += renderHit(r); });
+    outEl.innerHTML = html;
+    outEl.querySelectorAll('.hit').forEach(function(el){
+      el.onclick = function(){
+        var id = el.getAttribute('data-id');
+        var t = parseFloat(el.getAttribute('data-t')) || 0;
+        location.href = 'field.html?sessions=' + id + '&t=' + Math.max(0, t - 1) + '&engine=';
+      };
+    });
+  }
+
+  document.getElementById('q').addEventListener('input', draw);
+
+  fetch('../plan/search.json').then(function(r){ return r.json(); }).then(function(j){
+    index.count = j.count; index.cats = j.cats; index.rows = j.rows;
+    reloadCats();
+    draw();
+  }).catch(function(e){
+    metaEl.textContent = 'ошибка загрузки индекса: ' + e.message;
+  });
+})();
+</script>
+</body>
+</html>
