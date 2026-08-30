@@ -11,3 +11,6 @@ Thumbs.db
 # Редакторы/ОС
 .vscode/
 .idea/
+articles/CORRESPONDENCE.md
+articles/correspondence.json
+
