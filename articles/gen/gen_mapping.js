@@ -57,13 +57,9 @@ const inGrid = records.filter((r) => r.canonical && r.ours);
 const oldNum = records.filter((r) => r.canonical && !r.ours);
 const outside = records.filter((r) => !r.canonical);
 
-// Разбиение на две части (каждая часть < лимита GitHub в 100 МБ).
-function chunk(list) {
-  const mid = Math.ceil(list.length / 2);
-  return [list.slice(0, mid), list.slice(mid)];
-}
-
-const [j1, j2] = chunk(records);
+// Адаптивное разбиение на части (каждая часть < лимита GitHub в 100 МБ).
+// Число частей выбирается так, чтобы крупнейший файл уверенно помещался.
+const SAFE_MB = 90;
 
 const mkJson = (part, list) => ({
   library: "Библиотека университета · соответствие файлов на диске записям решётки",
@@ -75,16 +71,6 @@ const mkJson = (part, list) => ({
   outsideGrid: outside.length,
   records: list,
 });
-fs.writeFileSync(
-  path.join(catalogDir, "correspondence-01.json"),
-  JSON.stringify(mkJson(1, j1), null, 1),
-  "utf8"
-);
-fs.writeFileSync(
-  path.join(catalogDir, "correspondence-02.json"),
-  JSON.stringify(mkJson(2, j2), null, 1),
-  "utf8"
-);
 
 function buildMd(part, list, title) {
   const lines = [];
@@ -105,21 +91,59 @@ function buildMd(part, list, title) {
   return lines.join("\n");
 }
 
+function partsFor(totalBytes) {
+  const n = Math.max(1, Math.ceil(totalBytes / (SAFE_MB * 1024 * 1024)));
+  return n;
+}
+
+function chunk(list, n) {
+  const size = Math.ceil(list.length / n);
+  const out = [];
+  for (let i = 0; i < n; i++) out.push(list.slice(i * size, (i + 1) * size));
+  return out;
+}
+
+function probeJson(list) {
+  return Buffer.byteLength(JSON.stringify(mkJson(0, list), null, 1), "utf8");
+}
+function probeMd(list) {
+  return Buffer.byteLength(buildMd(0, list, ""), "utf8");
+}
+
+const jsonParts = chunk(records, partsFor(probeJson(records)));
+const mdParts = chunk(records, partsFor(probeMd(records)));
+
+// Стираем свои прежние части, чтобы не оставались устаревшие номера.
+function clearOld(prefix) {
+  for (const f of fs.readdirSync(catalogDir)) {
+    if (f.startsWith(prefix) && (f.endsWith(".json") || f.endsWith(".md"))) {
+      fs.rmSync(path.join(catalogDir, f), { force: true });
+    }
+  }
+}
+clearOld("correspondence-");
+clearOld("CORRESPONDENCE-");
+
+jsonParts.forEach((list, i) => {
+  fs.writeFileSync(
+    path.join(catalogDir, `correspondence-${String(i + 1).padStart(2, "0")}.json`),
+    JSON.stringify(mkJson(i + 1, list), null, 1),
+    "utf8"
+  );
+});
+
 const title =
   `Каждый файл на диске соотнесён с записью решётки (номер, область, роль, тема).\n\n` +
   `- Точно в решётке: **${inGrid.length}**. Старое смещённое соответствие: **${oldNum.length}**. ` +
   `Вне решётки (старые дубли): **${outside.length}**.`;
 
-fs.writeFileSync(
-  path.join(catalogDir, "CORRESPONDENCE-01.md"),
-  buildMd(1, j1, title),
-  "utf8"
-);
-fs.writeFileSync(
-  path.join(catalogDir, "CORRESPONDENCE-02.md"),
-  buildMd(2, j2),
-  "utf8"
-);
+mdParts.forEach((list, i) => {
+  fs.writeFileSync(
+    path.join(catalogDir, `CORRESPONDENCE-${String(i + 1).padStart(2, "0")}.md`),
+    buildMd(i + 1, list, i === 0 ? title : ""),
+    "utf8"
+  );
+});
 
 console.log(
   `соответствия: диске ${records.length}, в решётке ${inGrid.length}, старых смещённых ${oldNum.length}, вне решётки ${outside.length}`
