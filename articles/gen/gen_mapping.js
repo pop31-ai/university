@@ -1,5 +1,5 @@
 // Файл соответствий: каждый файл на диске articles/500 -> запись решётки
-// (номер, область, роль, тема, каноническое имя). Старые/дубли помечаются
+// (номер пакета, область, тема, роли, каноническое имя). Старые/дубли помечаются
 // как "вне решётки" либо как смещённое старое соответствие.
 // Запуск: node articles/gen/gen_mapping.js
 
@@ -7,63 +7,45 @@ const fs = require("fs");
 const path = require("path");
 const U = require("./500_universe.js");
 
-function slug(s) {
-  return s.replace(/[^a-zA-Zа-яА-ЯёЁ0-9]+/g, "_").replace(/^_+|_+$/g, "");
-}
-
 const outDir = path.join(__dirname, "..", "500");
 const catalogDir = path.join(__dirname, "..");
 
-// Каноническая решётка: тело имени (без номера) -> запись.
-const byBody = new Map();
+// Каноническая решётка: имя пакета (файла) -> запись.
 const byFile = new Map();
-{
-  let num = 0;
-  for (const area of Object.keys(U.UNIVERSE)) {
-    for (const topic of U.UNIVERSE[area]) {
-      for (const role of U.ROLES) {
-        num += 1;
-        const n = String(num).padStart(3, "0");
-        const file = `${n}_${slug(area)}_${slug(role)}_${slug(topic)}.txt`;
-        const rec = { num, file, area, role, topic };
-        byBody.set(`${slug(area)}_${slug(role)}_${slug(topic)}`, rec);
-        byFile.set(file, rec);
-      }
-    }
-  }
-}
+U.buildPkgFiles().forEach((pkg, i) => {
+  const rec = { num: i + 1, file: pkg.filename, area: pkg.area, topic: pkg.topic, roles: pkg.roles };
+  byFile.set(pkg.filename, rec);
+});
 
 // Перебор всех файлов на диске.
 const diskFiles = fs.readdirSync(outDir).filter((f) => f.endsWith(".txt"));
 
 const records = diskFiles.map((f) => {
-  const m = /^(\d+)_(.*)\.txt$/.exec(f);
-  const body = m ? m[2] : f.replace(/\.txt$/, "");
-  const num = m ? parseInt(m[1], 10) : null;
-  const canon = byFile.get(f) || (body ? byBody.get(body) : null);
+  const canon = byFile.get(f);
   return {
     file: f,
-    diskNum: num,
-    canonical: canon ? canon.file : null,
+    canonical: f,
     canonicalNum: canon ? canon.num : null,
     area: canon ? canon.area : null,
-    role: canon ? canon.role : null,
     topic: canon ? canon.topic : null,
-    ours: canon ? (canon.file === f) : false,
+    roles: canon ? canon.roles : null,
+    ours: !!canon,
   };
 });
 
-const inGrid = records.filter((r) => r.canonical && r.ours);
-const oldNum = records.filter((r) => r.canonical && !r.ours);
-const outside = records.filter((r) => !r.canonical);
+const inGrid = records.filter((r) => r.ours);
+const outside = records.filter((r) => !r.ours);
+
+// (старых смещённых нет: пакеты не несут сквозного номера в имени)
+const oldNum = [];
 
 // Адаптивное разбиение на части (каждая часть < лимита GitHub в 100 МБ).
 // Число частей выбирается так, чтобы крупнейший файл уверенно помещался.
 const SAFE_MB = 90;
 
 const mkJson = (part, list) => ({
-  library: "Библиотека университета · соответствие файлов на диске записям решётки",
-  grid: `${U.ROLES.length} ролей · ${byBody.size} статей`,
+  library: "Библиотека университета · соответствие пакетов на диске записям решётки",
+  grid: `${U.ROLES.length} ролей · ${U.totalArticles()} статей · ${byFile.size} пакетов`,
   part,
   totalDisk: records.length,
   exactInGrid: inGrid.length,
@@ -78,13 +60,11 @@ function buildMd(part, list, title) {
   lines.push("");
   if (title) lines.push(title);
   lines.push("");
-  lines.push(`- Решётка: **${U.ROLES.length} ролей × 65 тем × 11 областей = ${byBody.size} статей**.`);
+  lines.push(`- Решётка: **${U.ROLES.length} ролей × 65 тем × 11 областей = ${byFile.size} пакетов** (в пакете 10 статей, всего ${U.totalArticles()}).`);
   lines.push(`- Файлов на диске: **${records.length}** (часть ${part}: ${list.length}).`);
   for (const r of list) {
     const tag = r.ours
       ? "решётка"
-      : r.canonical
-      ? `старое -> №${r.canonicalNum}`
       : "вне решётки";
     lines.push(`- \`${r.file}\` · ${tag}`);
   }
@@ -133,9 +113,8 @@ jsonParts.forEach((list, i) => {
 });
 
 const title =
-  `Каждый файл на диске соотнесён с записью решётки (номер, область, роль, тема).\n\n` +
-  `- Точно в решётке: **${inGrid.length}**. Старое смещённое соответствие: **${oldNum.length}**. ` +
-  `Вне решётки (старые дубли): **${outside.length}**.`;
+  `Каждый пакет на диске соотнесён с записью решётки (номер, область, тема, роли).\n\n` +
+  `- Точно в решётке: **${inGrid.length}**. Вне решётки (старые дубли): **${outside.length}**.`;
 
 mdParts.forEach((list, i) => {
   fs.writeFileSync(

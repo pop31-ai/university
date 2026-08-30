@@ -1,6 +1,7 @@
-// Генератор 500 статей по десятке. Структурно: область -> тема -> роль.
+// Генератор корпуса университета. Структурно: область -> тема -> роль.
+// Пакетная запись: 10 статей одной темы (роли подряд) — один файл.
 // Каждая статья — научная, в парадигме университета, без словечек.
-// Запуск: node articles/gen/gen500.js <startIndex> [count]   (по умолчанию count=10)
+// Запуск: node articles/gen/gen500.js <startIndex> [count]   (индексы статей, по умолчанию count=10)
 
 const fs = require("fs");
 const path = require("path");
@@ -744,10 +745,6 @@ function areaNature(area) {
   }
 }
 
-function slug(s) {
-  return s.replace(/[^a-zA-Zа-яА-ЯёЁ0-9]+/g, "_").replace(/^_+|_+$/g, "");
-}
-
 function buildArticle({ area, topic, role }) {
   const duty = roleDuty(role);
   const goal = roleGoal(role);
@@ -794,6 +791,9 @@ function buildArticle({ area, topic, role }) {
 }
 
 // ---------- main ----------
+// Пакетная запись: 10 статей одной темы (роли подряд) — один файл.
+// Файлов в 10 раз меньше, контент весь сохранён; при росте ролей
+// переписываются только затрагиваемые пакеты.
 const start = parseInt(process.argv[2] || "0", 10);
 const count = parseInt(process.argv[3] || "10", 10);
 
@@ -801,13 +801,37 @@ const all = U.buildArticles();
 const outDir = path.join(__dirname, "..", "500");
 fs.mkdirSync(outDir, { recursive: true });
 
-let wrote = 0;
-for (let i = start; i < Math.min(start + count, all.length); i++) {
-  const art = all[i];
-  const text = buildArticle(art);
-  const num = String(i + 1).padStart(3, "0");
-  const filename = `${num}_${slug(art.area)}_${slug(art.role)}_${slug(art.topic)}.txt`;
-  fs.writeFileSync(path.join(outDir, filename), text, "utf8");
-  wrote++;
+// Смещения тем областей — для пересчёта индекса статьи в пакет.
+const areas = Object.keys(U.UNIVERSE);
+const topicsBefore = {};
+let cum = 0;
+for (const area of areas) {
+  topicsBefore[area] = cum;
+  cum += U.UNIVERSE[area].length;
 }
-console.log(`десятая партия: записано ${wrote} статей (индексы ${start}..${start + wrote - 1}) из ${all.length}`);
+
+const end = Math.min(start + count, all.length);
+const ROLES_LEN = U.ROLES.length;
+
+let wrote = 0;
+let rewrote = 0;
+for (const pkg of U.buildPkgFiles()) {
+  const topicIdx = U.UNIVERSE[pkg.area].indexOf(pkg.topic);
+  const roleStart = parseInt(pkg.filename.match(/_роли_(\d+)_/)[1], 10) - 1;
+  const base = (topicsBefore[pkg.area] + topicIdx) * ROLES_LEN;
+  const pkgStart = base + roleStart;
+  const pkgEnd = pkgStart + pkg.roles.length;
+
+  if (pkgEnd <= start || pkgStart >= end) continue;
+
+  const text = pkg.roles
+    .map((role) => buildArticle({ area: pkg.area, topic: pkg.topic, role }))
+    .join("\n\n");
+  fs.writeFileSync(path.join(outDir, pkg.filename), text, "utf8");
+  rewrote++;
+
+  const overlapStart = Math.max(pkgStart, start);
+  const overlapEnd = Math.min(pkgEnd, end);
+  wrote += overlapEnd - overlapStart;
+}
+console.log(`пакеты: переписано файлов ${rewrote}, статей в запросе ${wrote} (индексы ${start}..${Math.min(end, all.length) - 1}), корпус ${all.length}`);

@@ -474,4 +474,32 @@ function buildArticles() {
   return list;
 }
 
-module.exports = { ROLES, UNIVERSE, buildArticles, totalArticles };
+// Сколько статей укладывается в один пакет (файл) — 10 ролей одной темы подряд.
+const PKG = 10;
+
+function slug(s) {
+  return s.replace(/[^a-zA-Zа-яА-ЯёЁ0-9]+/g, "_").replace(/^_+|_+$/g, "");
+}
+
+// Пакеты корпуса: файл = 10 статей одной темы (роли подряд).
+// Имя стабильно: зависит только от области, темы и границ ролей,
+// поэтому рост списка ролей не переименовывает уже записанные пакеты.
+function buildPkgFiles() {
+  const files = [];
+  const areas = Object.keys(UNIVERSE);
+  for (const area of areas) {
+    for (const topic of UNIVERSE[area]) {
+      for (let from = 0; from < ROLES.length; from += PKG) {
+        const to = Math.min(from + PKG, ROLES.length);
+        const roles = ROLES.slice(from, to);
+        const rFrom = String(from + 1).padStart(3, "0");
+        const rTo = String(to).padStart(3, "0");
+        const filename = `${slug(area)}_${slug(topic)}_роли_${rFrom}_${rTo}.txt`;
+        files.push({ filename, area, topic, roles });
+      }
+    }
+  }
+  return files;
+}
+
+module.exports = { ROLES, UNIVERSE, buildArticles, buildPkgFiles, totalArticles, PKG };
