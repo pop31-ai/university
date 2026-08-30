@@ -7,7 +7,7 @@
     "side": "polyart",
     "title": "Пробковая комната идей",
     "outcome": "освоил: Пробковая комната идей",
-    "length": 160,
+    "length": 62,
     "filled": 9,
     "week": 1,
     "pair": 2,
@@ -108,7 +108,7 @@
     {
       "phase": "Б",
       "name": "Якорь старта",
-      "at": 13,
+      "at": 5,
       "pct": 8,
       "kind": "note",
       "conspect": [
@@ -121,7 +121,7 @@
     {
       "phase": "В",
       "name": "Разбор",
-      "at": 22,
+      "at": 9,
       "pct": 14,
       "kind": "text",
       "conspect": [
@@ -140,7 +140,7 @@
     {
       "phase": "Г",
       "name": "Ключ/развилка",
-      "at": 112,
+      "at": 43,
       "pct": 70,
       "kind": "cloud",
       "conspect": [
@@ -153,7 +153,7 @@
     {
       "phase": "Д",
       "name": "Сборка",
-      "at": 131,
+      "at": 51,
       "pct": 82,
       "kind": "box",
       "conspect": [
@@ -166,7 +166,7 @@
     {
       "phase": "Я",
       "name": "Якорь финала",
-      "at": 150,
+      "at": 58,
       "pct": 94,
       "kind": "box",
       "conspect": [

@@ -1,5 +1,5 @@
 {
-  "produced": 37,
+  "produced": 56,
   "note": "Ролик = что сказать ⊕ как грамотно рассказать: каждая сцена несёт конспект (под запись), дух просвещения (зачем/как смотреть) и рассказ (план/темп/монтаж). Предметные ролики наполняются конспектом; полиарт — пространством и камерами (ноу-хау, доводится вручную).",
   "videos": [
     {
@@ -201,28 +201,142 @@
       "len": 38
     },
     {
+      "id": "p01",
+      "engine": "polyart",
+      "filled": 13,
+      "len": 70
+    },
+    {
+      "id": "p02",
+      "engine": "polyart",
+      "filled": 13,
+      "len": 70
+    },
+    {
+      "id": "p03",
+      "engine": "polyart",
+      "filled": 13,
+      "len": 70
+    },
+    {
+      "id": "p04",
+      "engine": "polyart",
+      "filled": 13,
+      "len": 70
+    },
+    {
+      "id": "p05",
+      "engine": "polyart",
+      "filled": 13,
+      "len": 70
+    },
+    {
+      "id": "p06",
+      "engine": "polyart",
+      "filled": 18,
+      "len": 89
+    },
+    {
+      "id": "p07",
+      "engine": "polyart",
+      "filled": 17,
+      "len": 85
+    },
+    {
+      "id": "p08",
+      "engine": "polyart",
+      "filled": 15,
+      "len": 77
+    },
+    {
+      "id": "p09",
+      "engine": "polyart",
+      "filled": 13,
+      "len": 70
+    },
+    {
+      "id": "p10",
+      "engine": "polyart",
+      "filled": 13,
+      "len": 70
+    },
+    {
+      "id": "p11",
+      "engine": "polyart",
+      "filled": 13,
+      "len": 70
+    },
+    {
+      "id": "p12",
+      "engine": "polyart",
+      "filled": 12,
+      "len": 66
+    },
+    {
+      "id": "p13",
+      "engine": "polyart",
+      "filled": 16,
+      "len": 81
+    },
+    {
+      "id": "p14",
+      "engine": "polyart",
+      "filled": 14,
+      "len": 73
+    },
+    {
+      "id": "p15",
+      "engine": "polyart",
+      "filled": 17,
+      "len": 85
+    },
+    {
+      "id": "p16",
+      "engine": "polyart",
+      "filled": 13,
+      "len": 70
+    },
+    {
+      "id": "a01",
+      "engine": "auditorium",
+      "filled": 0,
+      "len": 70
+    },
+    {
+      "id": "a02",
+      "engine": "auditorium",
+      "filled": 0,
+      "len": 60
+    },
+    {
+      "id": "a03",
+      "engine": "auditorium",
+      "filled": 0,
+      "len": 60
+    },
+    {
       "id": "c01_kinozal",
       "engine": "chalkboard",
       "filled": 13,
-      "len": 160
+      "len": 95
     },
     {
       "id": "c02_kinozal",
       "engine": "cinema",
       "filled": 11,
-      "len": 150
+      "len": 82
     },
     {
       "id": "m01_plan",
       "engine": "markerboard",
       "filled": 10,
-      "len": 150
+      "len": 69
     },
     {
       "id": "b01_ideas",
       "engine": "corkboard",
       "filled": 9,
-      "len": 160
+      "len": 62
     }
   ]
 }

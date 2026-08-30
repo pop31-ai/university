@@ -99,6 +99,24 @@
       "title": "Оверхед-проектор",
       "spec": "Плёночный экран, световой луч, камеры плёнки cell.",
       "teacher": "педагог старой школы, ректор"
+    },
+    {
+      "id": "polyart",
+      "file": "engine/polyart.js",
+      "window": "Polyart",
+      "type": "polyart",
+      "title": "Пространство полиарт",
+      "spec": "Единая лента-пространство со зонами (холл, мел, маркер, пробка, кино), летающие камеры, слой духа, справочники на стенах.",
+      "teacher": "весь состав университета"
+    },
+    {
+      "id": "auditorium",
+      "file": "engine/auditorium.js",
+      "window": "Auditorium",
+      "type": "auditorium",
+      "title": "Кафедра-аудитория (3D-зал)",
+      "spec": "Помещение аудитории 30×30 м в перспективе: доска, кафедра, ряды парт, лектор. Камеры: вид с места, подход к доске, облёт зала.",
+      "teacher": "профессор-лектор"
     }
   ],
   "rooms": {
@@ -106,7 +124,9 @@
     "lab": "Лаборатория физики",
     "cinema": "Кинозал",
     "office": "Метод-кабинет (маркерная)",
-    "idea": "Пробковая комната идей"
+    "idea": "Пробковая комната идей",
+    "polyart": "Пространство полиарт",
+    "auditorium": "Кафедра-аудитория (30×30 м)"
   },
   "sessions": [
     {
@@ -506,6 +526,234 @@
       "outcome": "освоил: Полиарт 16 · Премьера твоей серии"
     },
     {
+      "id": "p01",
+      "file": "sessions/p01.json",
+      "engine": "polyart",
+      "room": "polyart",
+      "title": "Полиарт 1 · Как устроен конспект-лекция",
+      "week": 1,
+      "pair": 2,
+      "teacher": "👩‍💼 наставник-администратор",
+      "task": "Пространство полиарта: цель → этапы → итог, правила записи, полёт камеры по зонам.",
+      "outcome": "освоил: записывать цель → этапы → итог"
+    },
+    {
+      "id": "p02",
+      "file": "sessions/p02.json",
+      "engine": "polyart",
+      "room": "polyart",
+      "title": "Полиарт 2 · Карта целей недели",
+      "week": 2,
+      "pair": 2,
+      "teacher": "👩‍💼 наставник-администратор",
+      "task": "Приоритет → вехи → задача дня, подсветка ключевых позиций плана.",
+      "outcome": "освоил: видеть приоритеты и вехи недели"
+    },
+    {
+      "id": "p03",
+      "file": "sessions/p03.json",
+      "engine": "polyart",
+      "room": "polyart",
+      "title": "Полиарт 3 · Премьера первого эпизода",
+      "week": 3,
+      "pair": 2,
+      "teacher": "🎬 ректор Кинокадров",
+      "task": "Кинозал полиарта: кадры цели, шагов и вывода первого эпизода.",
+      "outcome": "освоил: оформить эпизод как цель-шаги-вывод"
+    },
+    {
+      "id": "p04",
+      "file": "sessions/p04.json",
+      "engine": "polyart",
+      "room": "polyart",
+      "title": "Полиарт 4 · Карта идей: связать понятия",
+      "week": 4,
+      "pair": 2,
+      "teacher": "🧑‍🏫 методолог Лебедев",
+      "task": "Комната идей: нити-связи предел · производная · скорость.",
+      "outcome": "освоил: связывать понятия нитями-связями"
+    },
+    {
+      "id": "p05",
+      "file": "sessions/p05.json",
+      "engine": "polyart",
+      "room": "polyart",
+      "title": "Полиарт 5 · Кат-сцены опыта",
+      "week": 5,
+      "pair": 2,
+      "teacher": "🎬 ректор Кинокадров",
+      "task": "Кинозал и мел: опыт → измерения → закон, связки кадров.",
+      "outcome": "освоил: опыт → измерения → закон"
+    },
+    {
+      "id": "p06",
+      "file": "sessions/p06.json",
+      "engine": "polyart",
+      "room": "polyart",
+      "title": "Полиарт 6 · Метод-карта: сеть правил",
+      "week": 6,
+      "pair": 2,
+      "teacher": "👩‍💼 наставник-администратор",
+      "task": "Правила дифференцирования как сеть с подсветкой узлов.",
+      "outcome": "освоил: производная суммы и произведения"
+    },
+    {
+      "id": "p07",
+      "file": "sessions/p07.json",
+      "engine": "polyart",
+      "room": "polyart",
+      "title": "Полиарт 7 · Карта проекта-серии",
+      "week": 7,
+      "pair": 2,
+      "teacher": "🧑‍🏫 методолог Лебедев",
+      "task": "Серия из 5 эпизодов праздника: эп1·эп2·…·эп5, нить опоры.",
+      "outcome": "освоил: спланировать серию из 5 эпизодов"
+    },
+    {
+      "id": "p08",
+      "file": "sessions/p08.json",
+      "engine": "polyart",
+      "room": "polyart",
+      "title": "Полиарт 8 · Итог первой половины",
+      "week": 8,
+      "pair": 2,
+      "teacher": "🎬 ректор Кинокадров",
+      "task": "Ретроспектив-облёт всего пройденного, анонс второй половины.",
+      "outcome": "освоил: видеть общую картину курса"
+    },
+    {
+      "id": "p09",
+      "file": "sessions/p09.json",
+      "engine": "polyart",
+      "room": "polyart",
+      "title": "Полиарт 9 · Карта понятий второй половины",
+      "week": 9,
+      "pair": 2,
+      "teacher": "👩‍💼 наставник-администратор",
+      "task": "f″ и точки перегиба, выпуклость по знаку f″.",
+      "outcome": "освоил: f″ и точки перегиба"
+    },
+    {
+      "id": "p10",
+      "file": "sessions/p10.json",
+      "engine": "polyart",
+      "room": "polyart",
+      "title": "Полиарт 10 · «Энергия vs производная»",
+      "week": 10,
+      "pair": 2,
+      "teacher": "🧑‍🏫 методолог Лебедев",
+      "task": "Карта аналогий: скорость — производная, темп — производная энергии.",
+      "outcome": "освоил: аналогию скорость-темп"
+    },
+    {
+      "id": "p11",
+      "file": "sessions/p11.json",
+      "engine": "polyart",
+      "room": "polyart",
+      "title": "Полиарт 11 · Как «взять производную»",
+      "week": 11,
+      "pair": 2,
+      "teacher": "🎬 ректор Кинокадров",
+      "task": "Кинозал и мел: поиск экстремума через f′=0 и проверку знака.",
+      "outcome": "освоил: поиск экстремума по f′=0"
+    },
+    {
+      "id": "p12",
+      "file": "sessions/p12.json",
+      "engine": "polyart",
+      "room": "polyart",
+      "title": "Полиарт 12 · Обобщающая схема",
+      "week": 12,
+      "pair": 2,
+      "teacher": "👩‍💼 наставник-администратор",
+      "task": "Каркас «вывод → закон → применение», единая схема курса.",
+      "outcome": "освоил: каркас «вывод → закон → применение»"
+    },
+    {
+      "id": "p13",
+      "file": "sessions/p13.json",
+      "engine": "polyart",
+      "room": "polyart",
+      "title": "Полиарт 13 · Шаблон эпизода",
+      "week": 13,
+      "pair": 2,
+      "teacher": "🧑‍🏫 методолог Лебедев",
+      "task": "Шаблон Тема→Опыт→Вывод→Итог как чек-лист вашей серии.",
+      "outcome": "освоил: шаблон Тема→Опыт→Вывод→Итог"
+    },
+    {
+      "id": "p14",
+      "file": "sessions/p14.json",
+      "engine": "polyart",
+      "room": "polyart",
+      "title": "Полиарт 14 · «Ритм и производная»",
+      "week": 14,
+      "pair": 2,
+      "teacher": "🎬 ректор Кинокадров",
+      "task": "Кинозал: колебания x=A·cos(ωt), ускорение a=−ω²x.",
+      "outcome": "освоил: a=−ω²x для колебаний"
+    },
+    {
+      "id": "p15",
+      "file": "sessions/p15.json",
+      "engine": "polyart",
+      "room": "polyart",
+      "title": "Полиарт 15 · Сборка своей серии",
+      "week": 15,
+      "pair": 2,
+      "teacher": "🧑‍🏫 методолог Лебедев",
+      "task": "Финальная сборка личной серии в единое целое, монтажный свет.",
+      "outcome": "освоил: собрать серию в единое целое"
+    },
+    {
+      "id": "p16",
+      "file": "sessions/p16.json",
+      "engine": "polyart",
+      "room": "polyart",
+      "title": "Полиарт 16 · Премьера твоей серии",
+      "week": 16,
+      "pair": 2,
+      "teacher": "🎬 ректор Кинокадров",
+      "task": "Премьера личной серии в кинозале, анонс: дальше интегралы.",
+      "outcome": "освоил: премьера личной серии, дальше интегралы"
+    },
+    {
+      "id": "a01",
+      "file": "sessions/a01.json",
+      "engine": "auditorium",
+      "room": "auditorium",
+      "title": "Кафедра-аудитория · Первая лекция в 3D-зале (доска и парты)",
+      "week": 17,
+      "pair": 1,
+      "teacher": "🧑‍🏫 профессор Полиартова",
+      "task": "Демо: лекция у живой доски в помещении аудитории 30×30 м, облёт зала.",
+      "outcome": "освоил: что такое 3D-аудитория и как в ней живёт лекция"
+    },
+    {
+      "id": "a02",
+      "file": "sessions/a02.json",
+      "engine": "auditorium",
+      "room": "cinema",
+      "title": "Кинозал · Премьера эпизода «Скорость»",
+      "week": 17,
+      "pair": 2,
+      "teacher": "🎬 ректор Кинокадров",
+      "task": "Демо: премьера эпизода в 3D-кинозале — экран, ряды кресел, затемнение.",
+      "outcome": "освоил: что такое кинозал 3D и как в нём идёт премьера эпизода"
+    },
+    {
+      "id": "a03",
+      "file": "sessions/a03.json",
+      "engine": "auditorium",
+      "room": "stand",
+      "title": "Стенд-экспозиция · Экспонаты производной",
+      "week": 17,
+      "pair": 3,
+      "teacher": "🧑‍🏫 профессор Полиартова",
+      "task": "Демо: обход стенда — витрина-панель, подиумы с экспонатами.",
+      "outcome": "освоил: что такое стенд-экспозиция 3D и как обойти экспонаты"
+    },
+    {
       "id": "c01_kinozal",
       "file": "sessions/c01_kinozal.json",
       "engine": "chalkboard",
@@ -574,9 +822,9 @@
         {
           "pair": 2,
           "side": "polyart",
-          "engine": "markerboard",
-          "room": "office",
-          "session": "k03",
+          "engine": "polyart",
+          "room": "polyart",
+          "session": "p01",
           "title": "Полиарт 1 · Как устроен конспект-лекция"
         }
       ]
@@ -595,9 +843,9 @@
         {
           "pair": 2,
           "side": "polyart",
-          "engine": "markerboard",
-          "room": "office",
-          "session": "m02",
+          "engine": "polyart",
+          "room": "polyart",
+          "session": "p02",
           "title": "Полиарт 2 · Карта целей недели"
         }
       ]
@@ -616,9 +864,9 @@
         {
           "pair": 2,
           "side": "polyart",
-          "engine": "cinema",
-          "room": "cinema",
-          "session": "c03",
+          "engine": "polyart",
+          "room": "polyart",
+          "session": "p03",
           "title": "Полиарт 3 · Премьера первого эпизода"
         }
       ]
@@ -637,9 +885,9 @@
         {
           "pair": 2,
           "side": "polyart",
-          "engine": "corkboard",
-          "room": "idea",
-          "session": "b02",
+          "engine": "polyart",
+          "room": "polyart",
+          "session": "p04",
           "title": "Полиарт 4 · Карта идей: связать понятия"
         }
       ]
@@ -658,9 +906,9 @@
         {
           "pair": 2,
           "side": "polyart",
-          "engine": "cinema",
-          "room": "cinema",
-          "session": "c04",
+          "engine": "polyart",
+          "room": "polyart",
+          "session": "p05",
           "title": "Полиарт 5 · Кат-сцены опыта"
         }
       ]
@@ -679,9 +927,9 @@
         {
           "pair": 2,
           "side": "polyart",
-          "engine": "markerboard",
-          "room": "office",
-          "session": "m03",
+          "engine": "polyart",
+          "room": "polyart",
+          "session": "p06",
           "title": "Полиарт 6 · Метод-карта: сеть правил"
         }
       ]
@@ -700,9 +948,9 @@
         {
           "pair": 2,
           "side": "polyart",
-          "engine": "corkboard",
-          "room": "idea",
-          "session": "b03",
+          "engine": "polyart",
+          "room": "polyart",
+          "session": "p07",
           "title": "Полиарт 7 · Карта проекта-серии"
         }
       ]
@@ -721,9 +969,9 @@
         {
           "pair": 2,
           "side": "polyart",
-          "engine": "cinema",
-          "room": "cinema",
-          "session": "c05",
+          "engine": "polyart",
+          "room": "polyart",
+          "session": "p08",
           "title": "Полиарт 8 · Итог первой половины"
         }
       ]
@@ -742,9 +990,9 @@
         {
           "pair": 2,
           "side": "polyart",
-          "engine": "markerboard",
-          "room": "office",
-          "session": "m04",
+          "engine": "polyart",
+          "room": "polyart",
+          "session": "p09",
           "title": "Полиарт 9 · Карта понятий второй половины"
         }
       ]
@@ -763,9 +1011,9 @@
         {
           "pair": 2,
           "side": "polyart",
-          "engine": "corkboard",
-          "room": "idea",
-          "session": "b04",
+          "engine": "polyart",
+          "room": "polyart",
+          "session": "p10",
           "title": "Полиарт 10 · «Энергия vs производная»"
         }
       ]
@@ -784,9 +1032,9 @@
         {
           "pair": 2,
           "side": "polyart",
-          "engine": "cinema",
-          "room": "cinema",
-          "session": "c06",
+          "engine": "polyart",
+          "room": "polyart",
+          "session": "p11",
           "title": "Полиарт 11 · Как «взять производную»"
         }
       ]
@@ -805,9 +1053,9 @@
         {
           "pair": 2,
           "side": "polyart",
-          "engine": "markerboard",
-          "room": "office",
-          "session": "m05",
+          "engine": "polyart",
+          "room": "polyart",
+          "session": "p12",
           "title": "Полиарт 12 · Обобщающая схема"
         }
       ]
@@ -826,9 +1074,9 @@
         {
           "pair": 2,
           "side": "polyart",
-          "engine": "corkboard",
-          "room": "idea",
-          "session": "b05",
+          "engine": "polyart",
+          "room": "polyart",
+          "session": "p13",
           "title": "Полиарт 13 · Шаблон эпизода"
         }
       ]
@@ -847,9 +1095,9 @@
         {
           "pair": 2,
           "side": "polyart",
-          "engine": "cinema",
-          "room": "cinema",
-          "session": "c07",
+          "engine": "polyart",
+          "room": "polyart",
+          "session": "p14",
           "title": "Полиарт 14 · «Ритм и производная»"
         }
       ]
@@ -868,9 +1116,9 @@
         {
           "pair": 2,
           "side": "polyart",
-          "engine": "corkboard",
-          "room": "idea",
-          "session": "b06",
+          "engine": "polyart",
+          "room": "polyart",
+          "session": "p15",
           "title": "Полиарт 15 · Сборка своей серии"
         }
       ]
@@ -889,9 +1137,9 @@
         {
           "pair": 2,
           "side": "polyart",
-          "engine": "cinema",
-          "room": "cinema",
-          "session": "c08",
+          "engine": "polyart",
+          "room": "polyart",
+          "session": "p16",
           "title": "Полиарт 16 · Премьера твоей серии"
         }
       ]
