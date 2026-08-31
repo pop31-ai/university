@@ -133,6 +133,20 @@
     return out;
   }
 
+  // Верстаки мастерской (wood): толстая столешница-фанера, тиски, заготовки.
+  function benches(metr) {
+    var out = [];
+    var rows = Math.max(3, Math.floor((metr.d - 10) / 3.4));
+    for (var r = 0; r < rows; r++) {
+      var x = metr.w / 2 + (r - (rows - 1) / 2) * 3.4;
+      for (var c = 0; c < 2; c++) {
+        var z = 11 + c * 8;
+        out.push({ x: x, z: z, w: 2.6, d: 1.3, h: 0.95, s: (c + r) % 2 });
+      }
+    }
+    return out;
+  }
+
   // ---------- МОДЕЛИ ЗАЛОВ (ВУЗ = ИНФРАСТРУКТУРА КАФЕДР) ----------
   // Мир: x = вдоль доски (0..metr.w), z = от доски к входу (0..metr.d),
   // y = высота (пол 0, потолок metr.h).
@@ -154,7 +168,7 @@
       spiritColor: o.spiritColor,
       view: o.view,
       views: o.views,
-      _furn: (o.furniture === 'desks' ? desks : o.furniture === 'tables' ? tables : o.furniture === 'seats' ? seats : stands)(o.metr || { w: 30, d: 30 })
+      _furn: (o.furniture === 'desks' ? desks : o.furniture === 'tables' ? tables : o.furniture === 'seats' ? seats : o.furniture === 'benches' ? benches : stands)(o.metr || { w: 30, d: 30 })
     };
   }
 
@@ -217,6 +231,27 @@
         'кафедра': { cx: 7.5, cz: 20, tx: 15, tz: 2 },
         'доска':   { cx: 24, cz: 20, tx: 15, tz: 1.4 },
         'облёт':   { cx: 4, cz: 4, tx: 22, tz: 34 }
+      }
+    }),
+    // КАФЕДРА ФАНЕРЫ · 30×30 · фанерная доска-броня, верстаки, шестерни.
+    // «Фанера — броня: слои держат, тонкий дюраль пробивается».
+    wood: roomBase({
+      metr: { w: 30, d: 30, h: 6 },
+      name: 'КАФЕДРА ФАНЕРЫ',
+      cathedra: 'Кафедра фанеры · фанера-броня · верстаки · сборки',
+      wall: '#c9ab79', wallHi: '#dabd8b', wallLo: '#aa8c5e',
+      floor: '#8a6f43', floorDark: '#6e5634', window: '#ffd98a', ceil: '#d8c49a',
+      surface: { bzc: 1.2, bw: 10, bly: 0.9, bty: 4.3,
+        frame: '#6a4a26', bg: '#c9a765', chalk: '#3a2a14' },
+      podium: { z: 2.6, w: 3.6, d: 1.2, h: 1.05 },
+      furniture: 'benches',
+      lecturer: true,
+      spiritColor: '#ffcf5e',
+      view: { cx: 24, cz: 15, tx: 15, tz: 1.4 },
+      views: {
+        'кафедра': { cx: 7.5, cz: 15, tx: 15, tz: 2 },
+        'доска':   { cx: 24, cz: 15, tx: 15, tz: 1.4 },
+        'облёт':   { cx: 4, cz: 4, tx: 22, tz: 22 }
       }
     }),
     // КИНОЗАЛ: экран, ряды кресел, затемнение.
@@ -359,22 +394,43 @@
         drawPoly(ctx, [lb, rb, rt, lt], rgba(R.window, 0.8), null);
       }
     }
+
+    // ЧПУ-станок (мастерская wood): станина, портал, лист фанеры — у заднего угла.
+    if (R.furniture === 'benches') {
+      var cnx = m.w - 4.5, cnz = 9;
+      var s0 = project(c, cnx - 1.6, 0.15, cnz - 1.0, W, H);
+      var s1 = project(c, cnx + 1.6, 0.15, cnz - 1.0, W, H);
+      var s2 = project(c, cnx + 1.6, 1.0, cnz - 1.0, W, H);
+      var s3 = project(c, cnx - 1.6, 1.0, cnz - 1.0, W, H);
+      if (s0 && s1) drawPoly(ctx, [s0, s1, s2, s3], '#5a6a6e', null);
+      var p0c = project(c, cnx - 1.6, 1.0, cnz + 1.0, W, H);
+      var p1c = project(c, cnx + 1.6, 1.0, cnz + 1.0, W, H);
+      if (s2 && p0c) drawPoly(ctx, [s2, s3, project(c, cnx - 1.6, 1.0, cnz + 1.0, W, H), p1c], '#4a585c', null);
+      // портал-резец
+      var g0 = project(c, cnx - 1.2, 1.5, cnz, W, H);
+      var g1 = project(c, cnx + 1.2, 1.5, cnz, W, H);
+      var g2 = project(c, cnx + 1.2, 0.6, cnz, W, H);
+      var g3 = project(c, cnx - 1.2, 0.6, cnz, W, H);
+      if (g0 && g1) drawPoly(ctx, [g0, g1, g2, g3], R.spiritColor || '#8a7a52', null);
+    }
   }
 
   // ---------- ВЫВЕСКА КАФЕДРЫ (табличка над доской) ----------
   function drawCathedra(ctx, cam, W, H, R) {
     if (!R.cathedra) return;
     var m = R.metr;
+    var sf = R.surface || {};
     var cx = m.w / 2;
+    var bzc = sf.bzc || 1.2;
     // табличка выше доски: от bty+0.15 до bty+0.6 (по высоте стены)
-    var y0 = Math.min(s.bty + 0.7, m.h - 0.8);
-    var p0 = project(cam, cx - 4.5, y0, s.bzc, W, H);
-    var p1 = project(cam, cx + 4.5, y0, s.bzc, W, H);
-    var p2 = project(cam, cx + 4.5, y0 + 0.55, s.bzc, W, H);
-    var p3 = project(cam, cx - 4.5, y0 + 0.55, s.bzc, W, H);
+    var y0 = Math.min((sf.bty || 4.3) + 0.7, m.h - 0.8);
+    var p0 = project(cam, cx - 4.5, y0, bzc, W, H);
+    var p1 = project(cam, cx + 4.5, y0, bzc, W, H);
+    var p2 = project(cam, cx + 4.5, y0 + 0.55, bzc, W, H);
+    var p3 = project(cam, cx - 4.5, y0 + 0.55, bzc, W, H);
     if (!p0) return;
     drawPoly(ctx, [p0, p1, p2, p3], 'rgba(20,25,32,0.78)', null);
-    var pc = project(cam, cx, y0 + 0.27, s.bzc, W, H);
+    var pc = project(cam, cx, y0 + 0.27, bzc, W, H);
     if (!pc) return;
     ctx.save();
     ctx.fillStyle = R.spiritColor || '#ffd966';
@@ -538,11 +594,64 @@
     }
   }
 
+  function drawBenches(ctx, cam, W, H, R) {
+    var noise = makeNoise(33);
+    for (var i = 0; i < R._furn.length; i++) {
+      var bn = R._furn[i];
+      var p0 = project(cam, bn.x - bn.w / 2, bn.h, bn.z - bn.d / 2, W, H);
+      var p1 = project(cam, bn.x + bn.w / 2, bn.h, bn.z - bn.d / 2, W, H);
+      var p2 = project(cam, bn.x + bn.w / 2, bn.h, bn.z + bn.d / 2, W, H);
+      var p3 = project(cam, bn.x - bn.w / 2, bn.h, bn.z + bn.d / 2, W, H);
+      if (!p0 || !p1) continue;
+      // столешница-фанера: тёплое дерево со шпоном
+      drawPoly(ctx, [p0, p1, p2, p3], bn.s ? '#b98a52' : '#a97a44', null);
+      ctx.fillStyle = 'rgba(255,255,255,0.06)';
+      for (var v = 0; v < 6; v++) {
+        var l0 = project(cam, bn.x - bn.w / 2 + 0.3, bn.h + 0.02, bn.z - bn.d / 2 + v * bn.d / 6, W, H);
+        var l1 = project(cam, bn.x + bn.w / 2 - 0.3, bn.h + 0.02, bn.z - bn.d / 2 + v * bn.d / 6, W, H);
+        if (l0 && l1) {
+          ctx.beginPath(); ctx.moveTo(l0[0], l0[1]); ctx.lineTo(l1[0], l1[1]); ctx.stroke();
+        }
+      }
+      // ноги-брусья
+      var e0 = project(cam, bn.x - bn.w / 2, 0, bn.z - bn.d / 2, W, H);
+      var e1 = project(cam, bn.x + bn.w / 2, 0, bn.z - bn.d / 2, W, H);
+      var f1 = project(cam, bn.x + bn.w / 2, 0, bn.z + bn.d / 2, W, H);
+      var f0 = project(cam, bn.x - bn.w / 2, 0, bn.z + bn.d / 2, W, H);
+      if (e0 && e1) drawPoly(ctx, [e0, e1, f1, f0], 'rgba(70,46,26,0.4)', null);
+      // тиски на краю столешницы
+      var g0 = project(cam, bn.x - 0.5, bn.h, bn.z - bn.d / 2 + 0.2, W, H);
+      var g1 = project(cam, bn.x + 0.5, bn.h, bn.z - bn.d / 2 + 0.2, W, H);
+      var g2 = project(cam, bn.x + 0.5, bn.h + 0.28, bn.z - bn.d / 2 + 0.2, W, H);
+      var g3 = project(cam, bn.x - 0.5, bn.h + 0.28, bn.z - bn.d / 2 + 0.2, W, H);
+      if (g0 && g1) drawPoly(ctx, [g0, g1, g2, g3], '#6a5636', null);
+      // заготовка-шестерёнка на столе
+      var hx = project(cam, bn.x, bn.h + 0.3, bn.z, W, H);
+      if (hx) {
+        ctx.fillStyle = bn.s ? '#c8b48a' : '#8f8f8f';
+        ctx.beginPath(); ctx.arc(hx[0], hx[1], Math.max(2.4, hx[2] * 0.013), 0, 7); ctx.fill();
+        ctx.fillStyle = 'rgba(0,0,0,0.35)';
+        ctx.beginPath(); ctx.arc(hx[0], hx[1], Math.max(1, hx[2] * 0.004), 0, 7); ctx.fill();
+      }
+      // стружки у ножек
+      ctx.strokeStyle = 'rgba(180,150,90,0.5)';
+      ctx.lineWidth = 1;
+      for (var w = 0; w < 3; w++) {
+        var c0 = project(cam, bn.x + (noise() - 0.5) * 1.2, 0.02, bn.z + (noise() - 0.5) * 1.4, W, H);
+        var c1 = project(cam, bn.x + (noise() - 0.5) * 1.2, 0.02, bn.z + (noise() - 0.5) * 1.4, W, H);
+        if (c0 && c1) {
+          ctx.beginPath(); ctx.moveTo(c0[0], c0[1]); ctx.lineTo(c1[0], c1[1]); ctx.stroke();
+        }
+      }
+    }
+  }
+
   function drawFurniture(ctx, cam, W, H, R) {
     if (R.furniture === 'desks') drawDesks(ctx, cam, W, H, R);
     else if (R.furniture === 'tables') drawTables(ctx, cam, W, H, R);
     else if (R.furniture === 'seats') drawSeats(ctx, cam, W, H, R);
     else if (R.furniture === 'stands') drawStands(ctx, cam, W, H, R);
+    else if (R.furniture === 'benches') drawBenches(ctx, cam, W, H, R);
   }
 
   // ---------- ЛЕКТОР ----------
@@ -686,6 +795,35 @@
           ctx.globalAlpha = alpha;
           ctx.fillStyle = color;
           ctx.beginPath(); ctx.arc(sx, sy, (s.r || 2) * scale * 40, 0, 7); ctx.fill();
+          ctx.restore();
+          break;
+        }
+        case 'gear': {
+          // шестерня: зубчатый венец, тело, ось (механика кафедры фанеры)
+          ctx.save();
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle = color;
+          ctx.strokeStyle = color;
+          var gr = (s.r || 1.6) * scale * 40 * 6;      // внешний радиус
+          var teeth = (s.teeth || 12);
+          var tr = gr * 1.15;                           // вершины зубьев
+          var base = gr * 0.85;                         // впадины зубьев
+          ctx.beginPath();
+          for (var tw = 0; tw < teeth; tw++) {
+            var a0 = tw / teeth * Math.PI * 2 - Math.PI / 2;
+            var a1 = (tw + 0.42) / teeth * Math.PI * 2 - Math.PI / 2;
+            var a2 = (tw + 0.5) / teeth * Math.PI * 2 - Math.PI / 2;
+            var a3 = (tw + 0.92) / teeth * Math.PI * 2 - Math.PI / 2;
+            ctx.lineTo(sx + Math.cos(a0) * base, sy + Math.sin(a0) * base);
+            ctx.lineTo(sx + Math.cos(a1) * tr, sy + Math.sin(a1) * tr);
+            ctx.lineTo(sx + Math.cos(a2) * tr, sy + Math.sin(a2) * tr);
+            ctx.lineTo(sx + Math.cos(a3) * base, sy + Math.sin(a3) * base);
+          }
+          ctx.closePath();
+          ctx.fill();
+          // отверстие оси
+          ctx.fillStyle = ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+          ctx.beginPath(); ctx.arc(sx, sy, gr * 0.3, 0, 7); ctx.fill();
           ctx.restore();
           break;
         }
