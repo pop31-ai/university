@@ -1303,5 +1303,272 @@
       ]
     }
   ],
-  "methodology": "См. METHODOLOGY.md — доступность и саморегуляция индивида, вопросы в зал без давления, блочность, прочность, два режима ленты."
+  "methodology": "См. METHODOLOGY.md — доступность и саморегуляция индивида, вопросы в зал без давления, блочность, прочность, два режима ленты.",
+  "subjects": {
+    "student": {
+      "title": "Студент",
+      "desc": "разного возраста и срока обучения"
+    },
+    "invited": {
+      "title": "Приглашённый",
+      "desc": "приглашённый специалист / лектор-гость"
+    },
+    "guest": {
+      "title": "Гость (приходящий)",
+      "desc": "просто приходящий, без зачисления"
+    },
+    "infra": {
+      "title": "Инфраструктурный практикант",
+      "desc": "«биолог»: студент, работающий на объектах кампуса — зал одновременно учебный и рабочий"
+    },
+    "staff": {
+      "title": "Сотрудник кафедры",
+      "desc": "преподаватели, лаборанты, смотрители зала"
+    },
+    "external": {
+      "title": "Внешний эксперт",
+      "desc": "рецензент / гость со стороны / представитель универа-партнёра"
+    }
+  },
+  "announcements": [
+    {
+      "id": "a01_ob",
+      "session": "a01",
+      "engine": "auditorium",
+      "room": "aud_math",
+      "title": "Конспект-лекция у доски: что такое производная",
+      "day": "пн",
+      "time": "10:00",
+      "dur": 70,
+      "host": "Профессор Математики Векторов",
+      "subjects": [
+        "student",
+        "guest"
+      ]
+    },
+    {
+      "id": "a04_ob",
+      "session": "a04",
+      "engine": "auditorium",
+      "room": "lab_phys",
+      "title": "Опыт у доски: свободное падение",
+      "day": "пн",
+      "time": "12:00",
+      "dur": 60,
+      "host": "Профессор Физики Ньютон",
+      "subjects": [
+        "student",
+        "guest"
+      ]
+    },
+    {
+      "id": "a05_ob",
+      "session": "a05",
+      "engine": "auditorium",
+      "room": "lab_chem",
+      "title": "Реакция у доски: скорость и концентрация",
+      "day": "вт",
+      "time": "10:00",
+      "dur": 60,
+      "host": "Профессор Химии Менделеев",
+      "subjects": [
+        "student",
+        "guest"
+      ]
+    },
+    {
+      "id": "a06_ob",
+      "session": "a06",
+      "engine": "auditorium",
+      "room": "wood",
+      "title": "Опытное производство: собери свою поделку",
+      "day": "вт",
+      "time": "12:00",
+      "dur": 60,
+      "host": "Мастер Опытного Производства",
+      "subjects": [
+        "student",
+        "infra",
+        "guest"
+      ]
+    },
+    {
+      "id": "a03_ob",
+      "session": "a03",
+      "engine": "auditorium",
+      "room": "stand",
+      "title": "Стенд-экспозиция: экспонаты производной",
+      "day": "ср",
+      "time": "10:00",
+      "dur": 60,
+      "host": "Профессор Математики Векторов",
+      "subjects": [
+        "student",
+        "guest",
+        "invited"
+      ]
+    },
+    {
+      "id": "a02_ob",
+      "session": "a02",
+      "engine": "auditorium",
+      "room": "cinema",
+      "title": "Премьера эпизода «Скорость»",
+      "day": "ср",
+      "time": "18:00",
+      "dur": 60,
+      "host": "Касс Кафедральный",
+      "subjects": [
+        "student",
+        "guest",
+        "invited",
+        "staff"
+      ]
+    },
+    {
+      "id": "b01_ob",
+      "session": "b01_rnd",
+      "engine": "auditorium",
+      "room": "lab_rnd",
+      "title": "НИР: гипотеза и опыт",
+      "day": "чт",
+      "time": "09:00",
+      "dur": 60,
+      "host": "Профессор Физики Ньютон (научный)",
+      "subjects": [
+        "student",
+        "infra",
+        "staff"
+      ]
+    },
+    {
+      "id": "b02_ob",
+      "session": "b02_okr",
+      "engine": "auditorium",
+      "room": "bureau_okr",
+      "title": "ОКР: от чертежа к прототипу",
+      "day": "чт",
+      "time": "11:00",
+      "dur": 60,
+      "host": "Инженер Бюро Разработок",
+      "subjects": [
+        "student",
+        "infra",
+        "staff"
+      ]
+    },
+    {
+      "id": "b03_ob",
+      "session": "b03_shop",
+      "engine": "auditorium",
+      "room": "machine_shop",
+      "title": "Точность детали: станок и допуск",
+      "day": "чт",
+      "time": "13:00",
+      "dur": 60,
+      "host": "Мастер Цеха по Металлу",
+      "subjects": [
+        "student",
+        "infra",
+        "staff"
+      ]
+    },
+    {
+      "id": "b04_ob",
+      "session": "b04_elec",
+      "engine": "auditorium",
+      "room": "elec_shop",
+      "title": "Схема → плата → прибор",
+      "day": "чт",
+      "time": "15:00",
+      "dur": 60,
+      "host": "Радиомеханика Фирмы",
+      "subjects": [
+        "student",
+        "infra",
+        "staff"
+      ]
+    },
+    {
+      "id": "b05_ob",
+      "session": "b05_stand",
+      "engine": "auditorium",
+      "room": "test_stand",
+      "title": "Прочность и надёжность: испытание",
+      "day": "пт",
+      "time": "09:00",
+      "dur": 60,
+      "host": "Испытатель Стенда Поляков",
+      "subjects": [
+        "student",
+        "infra",
+        "staff"
+      ]
+    },
+    {
+      "id": "b06_ob",
+      "session": "b06_cpc",
+      "engine": "auditorium",
+      "room": "cpc",
+      "title": "Общее оборудование кафедр",
+      "day": "пт",
+      "time": "11:00",
+      "dur": 60,
+      "host": "Директор ЦКП Регулярного",
+      "subjects": [
+        "student",
+        "infra",
+        "staff"
+      ]
+    },
+    {
+      "id": "b07_ob",
+      "session": "b07_range",
+      "engine": "auditorium",
+      "room": "test_range",
+      "title": "Полевые испытания на природе",
+      "day": "пт",
+      "time": "13:00",
+      "dur": 60,
+      "host": "Испытатель Полигона Поляков",
+      "subjects": [
+        "student",
+        "infra",
+        "staff"
+      ]
+    },
+    {
+      "id": "b08_ob",
+      "session": "b08_pilot",
+      "engine": "auditorium",
+      "room": "pilot_plant",
+      "title": "Малые партии и поделки кафедр",
+      "day": "пт",
+      "time": "15:00",
+      "dur": 60,
+      "host": "Технолог Опытного Производства Полякова",
+      "subjects": [
+        "student",
+        "infra",
+        "staff"
+      ]
+    },
+    {
+      "id": "b09_ob",
+      "session": "b09_net",
+      "engine": "auditorium",
+      "room": "uni_net",
+      "title": "Сотрудничество с другими универами",
+      "day": "сб",
+      "time": "11:00",
+      "dur": 60,
+      "host": "Куратор Связей Универов",
+      "subjects": [
+        "invited",
+        "external",
+        "guest",
+        "student"
+      ]
+    }
+  ]
 }

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Управленческий дашборд университета · афиши и загрузка кафедр</title>
+<style>
+  :root{
+    --bg:#0f1510; --panel:#171f15; --panel2:#1b2419; --line:#2a3320;
+    --ink:#eef0e6; --mut:#a5b58a; --dim:#7a8a62;
+    --gold:#ffd966; --teal:#7fd7c9; --sky:#a8d5ff; --vio:#c9b8f0;
+    --acc:#8aa06a; --warn:#ff8a6a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Arial,sans-serif}
+  .top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 20px;
+       border-bottom:1px solid var(--line);background:linear-gradient(180deg,#141a11,#0f1510)}
+  .top h1{font-size:17px;margin:0;letter-spacing:1px;color:var(--gold)}
+  .top .sub{color:var(--mut);font-size:12px}
+  .top .mgr{margin-left:auto;color:var(--dim);font-size:11px;text-align:right}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 20px 60px}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:22px}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .kpi .n{font-size:30px;font-weight:700;color:var(--teal)}
+  .kpi .l{font-size:11px;color:var(--mut);margin-top:4px;letter-spacing:.5px;text-transform:uppercase}
+  h2{font-size:13px;color:var(--mut);letter-spacing:1px;text-transform:uppercase;
+     margin:28px 0 10px;border-bottom:1px solid var(--line);padding-bottom:6px}
+  h2 .hint{text-transform:none;color:var(--dim);letter-spacing:0;font-weight:400}
+  table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);
+        border-radius:12px;overflow:hidden;font-size:13px}
+  th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--panel2);vertical-align:top}
+  th{background:var(--panel2);color:var(--gold);font-size:11px;letter-spacing:.6px;
+     text-transform:uppercase;font-weight:600}
+  tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:var(--panel2)}
+  a.open{color:var(--sky);text-decoration:none;border-bottom:1px dotted var(--sky)}
+  a.open:hover{color:#fff}
+  .day{color:var(--vio);font-weight:600;white-space:nowrap}
+  .time{color:var(--ink);font-family:Consolas,monospace;white-space:nowrap}
+  .dur{color:var(--dim);white-space:nowrap}
+  .host{color:var(--gold)}
+  .pill{display:inline-block;background:var(--panel2);border:1px solid var(--line);
+        border-radius:20px;padding:2px 9px;margin:1px 3px 1px 0;font-size:11px;color:var(--teal)}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .chip{background:var(--panel);border:1px solid var(--line);border-radius:20px;
+        padding:5px 12px;cursor:pointer;font-size:12px;color:var(--mut)}
+  .chip.on{background:#28351f;border-color:var(--acc);color:var(--gold)}
+  .rooms{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+  .room{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .room .name{font-size:13px;font-weight:600;color:var(--ink)}
+  .room .cat{font-size:11px;color:var(--mut);margin:2px 0 8px}
+  .room .cat b{color:var(--acc);font-weight:600}
+  .room .obj{display:inline-block;font-size:10px;color:var(--warn);border:1px solid var(--warn);
+             border-radius:10px;padding:1px 8px;margin-left:6px;vertical-align:middle}
+  .load{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+  .lb{display:flex;justify-content:space-between;font-size:11px;color:var(--mut);gap:8px}
+  .bar{height:8px;background:var(--panel2);border-radius:6px;overflow:hidden;display:flex;width:100%}
+  .bar i{height:100%;display:block}
+  .count{font-size:15px;color:var(--gold)}
+  .subj-row{display:flex;justify-content:space-between;padding:6px 2px;border-bottom:1px dashed var(--line);font-size:13px}
+  .subj-row:last-child{border-bottom:none}
+  .subj-row .tag{color:var(--sky)}
+  .subj-row .cnt{color:var(--ink);font-weight:600}
+  .foot{text-align:center;color:var(--dim);font-size:11px;padding-top:26px}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin-top:6px}
+  .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:middle}
+  .note{color:var(--mut);font-size:12px;line-height:1.5;background:var(--panel);
+        border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+</style>
+</head>
+<body>
+  <div class="top">
+    <h1>#ДАШБОРД_УНИВЕРСИТЕТА</h1>
+    <span class="sub">управленческая сводка · сила — в объявлениях-афишах с графой времени</span>
+    <span class="mgr" id="mgr"></span>
+  </div>
+
+  <div class="wrap">
+    <div class="kpis" id="kpis"></div>
+
+    <h2>Хроника объявлений <span class="hint">— афиши-приглашения на залы; клик открывает показ</span></h2>
+    <div class="chips" id="dayFilter"></div>
+    <table id="annTable">
+      <thead>
+        <tr><th>Когда</th><th>Афиша</th><th>Зал</th><th>Ведущий</th><th>Контингент</th><th>Показ</th></tr>
+      </thead>
+      <tbody id="annRows"></tbody>
+    </table>
+
+    <h2>Загрузка кафедр и залов <span class="hint" id="loadHint"></span></h2>
+    <div class="rooms" id="rooms"></div>
+    <div class="legend" id="legend"></div>
+
+    <h2>Контингент университета <span class="hint">— кто приглашён на афиши</span></h2>
+    <div id="subjects"></div>
+
+    <div class="note" id="footnote"></div>
+  </div>
+
+  <div class="foot" id="foot"></div>
+
+  <script>
+  (function(){
+    // Перечень залов (комнаты плана) — полушка с категориями охвата.
+    // Инфраструктурные объекты (цеха/стенды/полигон/НИР/ОКР/опытное/ЦКП) —
+    // учебно-производственные: зал одновременно учебный и рабочий для «биологов».
+    var HALLS = {
+      aud_math:    { name:'Кафедра математики · ауд. 30×30 · мел',        cat:'Кафедры-лектории' },
+      lab_phys:    { name:'Кафедра физики · лаб. 30×40 · опытный стол',   cat:'Кафедры-лектории' },
+      lab_chem:    { name:'Кафедра химии · лаб. 30×40 · маркер',          cat:'Кафедры-лектории' },
+      wood:        { name:'Кафедра фанеры · мастерская 30×30 · ЧПУ',      cat:'Кафедры-лектории', obj:1 },
+      cinema:      { name:'Кинозал университета · экран 20 м',            cat:'Презентация' },
+      stand:       { name:'Стенд-экспозиция университета',                cat:'Презентация' },
+      lab_rnd:     { name:'НИР-лаборатория · стойки приборов',            cat:'Инфраструктурные объекты', obj:1 },
+      bureau_okr:  { name:'ОКР-бюро · кульманы',                           cat:'Инфраструктурные объекты', obj:1 },
+      machine_shop:{ name:'Машиностроительный цех · станочные ряды',       cat:'Инфраструктурные объекты', obj:1 },
+      elec_shop:   { name:'Электро-радиомастерская · стенды пайки',       cat:'Инфраструктурные объекты', obj:1 },
+      test_stand:  { name:'Испытательный стенд · машины испытаний',        cat:'Инфраструктурные объекты', obj:1 },
+      cpc:         { name:'Центр коллективного пользования · приборы',     cat:'Инфраструктурные объекты', obj:1 },
+      test_range:  { name:'Испытательный полигон · открытая площадка',     cat:'Инфраструктурные объекты', obj:1 },
+      pilot_plant: { name:'Опытное производство · ячейки выпуска',         cat:'Инфраструктурные объекты', obj:1 },
+      uni_net:     { name:'Центр внешних связей · круглый стол · партнёры',cat:'Внешние связи', obj:1 }
+    };
+    var DAYORD = { 'пн':1,'вт':2,'ср':3,'чт':4,'пт':5,'сб':6,'вс':7 };
+    var SUBJ_COLORS = {
+      student:'#7fd7c9', invited:'#a8d5ff', guest:'#c9b8f0',
+      infra:'#ff8a6a', staff:'#e8c97f', external:'#8fce7f'
+    };
+
+    document.getElementById('foot').textContent =
+      '#ДАШБОРД_УНИВЕРСИТЕТА · традиционно образовательно: кампус собирается афишами, а не жёсткой сеткой занятий · ' +
+      'зал открывается объявлением в назначенное время · устройства: ?hall=&day=';
+
+    fetch('../plan/semester.json').then(function(r){ return r.json(); })
+      .then(render).catch(function(e){
+        document.getElementById('kpis').textContent = 'ошибка загрузки плана: ' + e.message;
+      });
+
+    function render(P){
+      var plan = P.plan || {};
+      var subjects = P.subjects || {};
+      var ann = (P.announcements || []).slice();
+      document.getElementById('mgr').innerHTML =
+        (plan.title||'') + '<br>' + (plan.period||'') + ' · ' + (plan.author||'');
+
+      // ---- KPI ----
+      var hallsUsed = {}; ann.forEach(function(a){ hallsUsed[a.room]=1; });
+      var hallKeys = Object.keys(hallsUsed);
+      var subjectCount = ann.reduce(function(t,a){ return t + (a.subjects?a.subjects.length:0); },0);
+      var kpis = [
+        { n: ann.length, l:'афиш-объявлений' },
+        { n: hallKeys.length, l:'залов задействовано' },
+        { n: Object.keys(subjects).length, l:'ролей контингента' },
+        { n: subjectCount, l:'приглашений (человеко-афиш)' }
+      ];
+      var sk = document.getElementById('kpis');
+      kpis.forEach(function(k){
+        var d = document.createElement('div'); d.className='kpi';
+        d.innerHTML = '<div class="n">'+k.n+'</div><div class="l">'+k.l+'</div>';
+        sk.appendChild(d);
+      });
+
+      // ---- Фильтр по дням ----
+      var days = ann.map(function(a){ return a.day; })
+        .filter(function(v,i,ar){ return ar.indexOf(v)===i; })
+        .sort(function(a,b){ return (DAYORD[a]||9)-(DAYORD[b]||9); });
+      var dayF = document.getElementById('dayFilter');
+      dayF.appendChild(chip('Все','',true));
+      days.forEach(function(d){ dayF.appendChild(chip(d,d,false)); });
+
+      function chip(label,val,on){
+        var c=document.createElement('span'); c.className='chip'+(on?' on':'');
+        c.textContent=label; c.dataset.v=val;
+        c.onclick=function(){
+          dayF.querySelectorAll('.chip').forEach(function(x){x.classList.remove('on');});
+          c.classList.add('on'); renderRows(c.dataset.v);
+        };
+        return c;
+      }
+
+      // ---- Хроника ----
+      function sortAnn(list){
+        return list.slice().sort(function(a,b){
+          var d=(DAYORD[a.day]||9)-(DAYORD[b.day]||9);
+          if(d) return d;
+          return (a.time||'').localeCompare(b.time||'');
+        });
+      }
+      var ordered = sortAnn(ann);
+      var curDay = '';
+
+      function renderRows(filterDay){
+        var tb=document.getElementById('annRows'); tb.innerHTML='';
+        ordered.forEach(function(a){
+          if(filterDay && a.day!==filterDay) return;
+          var hall=HALLS[a.room]||{name:a.room,cat:a.room};
+          var tr=document.createElement('tr');
+          var t=document.createElement('td');
+          t.innerHTML = '<span class="day">'+a.day+'</span> <span class="time">'+a.time+'</span> '+
+            '<span class="dur">('+a.dur+'′)</span>';
+          tr.appendChild(t);
+          t=document.createElement('td'); t.textContent = (a.title||a.session); tr.appendChild(t);
+          t=document.createElement('td');
+          t.innerHTML = '<a class="open" href="field.html?sessions='+a.session+'&engine='+a.engine+
+            '" target="_blank" title="открыть показ зала">'+(hall.name)+'</a>';
+          tr.appendChild(t);
+          t=document.createElement('td'); t.className='host'; t.textContent=a.host||'—'; tr.appendChild(t);
+          t=document.createElement('td');
+          (a.subjects||[]).forEach(function(s){
+            var st=subjects[s]||{title:s};
+            t.innerHTML += '<span class="pill">'+st.title+'</span>';
+          });
+          tr.appendChild(t);
+          t=document.createElement('td');
+          t.innerHTML = '<a class="open" href="field.html?sessions='+a.session+'&engine='+a.engine+
+            '" target="_blank">показ</a>';
+          tr.appendChild(t);
+          tb.appendChild(tr);
+        });
+      }
+      renderRows('');
+
+      // ---- Загрузка залов ----
+      var loadHint = document.getElementById('loadHint');
+      loadHint.textContent = '— показов и распределение по контингенту; ' +
+        '«учебно-производственный» = зал учебный и рабочий для инфраструктурных практикантов';
+      var roomsDiv = document.getElementById('rooms');
+      // сгруппировать по категории
+      var byCat = {};
+      hallKeys.forEach(function(k){
+        var hall=HALLS[k]||{cat:k,obj:0};
+        var c=byCat[hall.cat]||(byCat[hall.cat]=[]);
+        c.push(k);
+      });
+      var catOrder=['Кафедры-лектории','Презентация','Инфраструктурные объекты','Внешние связи'];
+      // выведем сводную строку по каждому залу независимо от категории (плоско), но пометим категорией
+      hallKeys.sort(function(a,b){ return (HALLS[a]?HALLS[a].name:'').localeCompare(HALLS[b]?HALLS[b].name:''); });
+      hallKeys.forEach(function(k){
+        var hall=HALLS[k]||{name:k,cat:'—',obj:0};
+        var list=ann.filter(function(a){return a.room===k;});
+        var card=document.createElement('div'); card.className='room';
+        var chip2=document.createElement('span'); // контингент-бары
+        var total=list.length;
+        // распределение по субъектам
+        var dist={};
+        list.forEach(function(a){ (a.subjects||[]).forEach(function(s){ dist[s]=(dist[s]||0)+1; }); });
+        var sb=Object.keys(dist);
+        card.innerHTML =
+          '<div class="name">'+hall.name+
+          (hall.obj?'<span class="obj" title="учебно-производственный: учебный и рабочий для инфраструктурных практикантов">учебно-производственный</span>':'')+
+          '</div>'+
+          '<div class="cat">'+hall.cat+' · <b>'+total+'</b> афиш · <b>'+list.reduce(function(t,a){return t+(a.dur||0);},0)+'</b> мин «живого» времени</div>';
+        var load=document.createElement('div'); load.className='load';
+        sb.forEach(function(s){
+          var st=subjects[s]||{title:s};
+          var pct=Math.round(100*dist[s]/total);
+          var bar=document.createElement('div'); bar.className='lb';
+          bar.innerHTML='<span>'+st.title+'</span><span>'+dist[s]+' ('+pct+'%)</span>';
+          load.appendChild(bar);
+          var b=document.createElement('div'); b.className='bar';
+          var seg=document.createElement('i');
+          seg.style.width=pct+'%'; seg.style.background=SUBJ_COLORS[s]||'#8aa06a';
+          b.appendChild(seg); load.appendChild(b);
+        });
+        card.appendChild(load);
+        roomsDiv.appendChild(card);
+      });
+
+      // ---- Субъекты ----
+      var subjDiv=document.getElementById('subjects');
+      var subjUsages={};
+      ann.forEach(function(a){ (a.subjects||[]).forEach(function(s){ subjUsages[s]=(subjUsages[s]||0)+1; }); });
+      Object.keys(subjects).forEach(function(k){
+        var st=subjects[k]||{};
+        var row=document.createElement('div'); row.className='subj-row';
+        row.innerHTML='<span class="tag">'+st.title+' — '+(st.desc||'')+'</span>'+
+          '<span class="cnt">'+((subjUsages[k]||0))+' афиш</span>';
+        subjDiv.appendChild(row);
+
+      });
+
+      // ---- Подвал с пояснением формирования ----
+      document.getElementById('footnote').innerHTML =
+        '<b>Формирование кампуса.</b> Объявление-афиша с графой времени — день, время старта, длительность — открывает '+
+        'зал кафедры или инфраструктурный объект в назначенный момент. Так универ собирается «афишами», а не жёсткой '+
+        'сеткой занятий. Субъекты разные: студенты разных возрастов и сроков обучения, приглашённые, гости (приходящие), '+
+        'внешние эксперты и инфраструктурные практиканты — «биологи», которые работают на объектах кампуса (цеха, '+
+        'стенды, полигон, НИР/ОКР, опытное производство, ЦКП), так что зал для них одновременно учебный и рабочий.';
+
+      // param-фильтры
+      var q=new URLSearchParams(location.search);
+      var hallP=q.get('hall');
+      if(hallP){
+        document.querySelectorAll('.room').forEach(function(c){ c.style.display='none'; });
+        var hs=hallP.split(',');
+        document.querySelectorAll('.room').forEach(function(c){
+          var nm=c.querySelector('.name');
+          if(nm && hs.indexOf(nm.textContent.trim().split(' ')[0])>=0) c.style.display='';
+        });
+      }
+      var dayP=q.get('day');
+      if(dayP){ renderRows(dayP); dayF.querySelectorAll('.chip').forEach(function(c){c.classList.remove('on'); if(c.dataset.v===dayP)c.classList.add('on');}); }
+    }
+  })();
+  </script>
+</body>
+</html>
