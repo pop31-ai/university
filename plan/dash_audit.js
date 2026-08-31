@@ -9,7 +9,9 @@
  *   2) полнота залов       — каждый room из афиш выведен с именем (имя не пусто);
  *   3) полнота субъектов   — каждая роль из subjects выведена в сводке;
  *   4) совпадение ссылок   — каждый session файл существует и объявлен в field.html;
- *   5) отсутствие потерь   — число выведенных афиш/залов/ролей == источнику.
+ *   5) отсутствие потерь   — число выведенных афиш/залов/ролей == источнику;
+ *   6) повторяемость месяц — маска недель корректна и повторяемость совпадает;
+ *   7) печатный отчёт      — PDF/HTML-отчёт выводит весь контент (афиши/залы/роли/KPI).
  *
  * Запуск: node plan/dash_audit.js   (exit 0 = OK, 1 = найдены расхождения).
  * ============================================================*/
@@ -24,6 +26,10 @@ const SEMESTER = JSON.parse(fs.readFileSync(
 const dashPath = process.env.DASH_OVERRIDE || path.join(ROOT, 'player', 'dashboard.html');
 const DASH = fs.readFileSync(dashPath, 'utf8');
 const FIELD = fs.readFileSync(path.join(ROOT, 'player', 'field.html'), 'utf8');
+// печатный отчёт дашборда (PDF/HTML) — для сверки полноты второго представления
+const reportPath = process.env.REPORT_OVERRIDE || path.join(ROOT, 'docs', 'dashboard_report.html');
+const reportPdf = process.env.REPORT_PDF_OVERRIDE || path.join(ROOT, 'docs', 'dashboard_report.pdf');
+const REPORT_HTML = fs.existsSync(reportPath) ? fs.readFileSync(reportPath, 'utf8') : null;
 
 let failures = 0;
 function report(msg) { failures++; console.log('  [НЕ] ' + msg); }
@@ -240,6 +246,49 @@ function runAudit() {
   });
   ok('месячные объёмы залов совпадают ' + hallsMnOk + '/' + Object.keys(roomNames).length);
   if (mnOk === ann.length && hallsMnOk === Object.keys(roomNames).length) ok('повторяемость по месяцам выведена ПОЛНОСТЬЮ и совпадает');
+  console.log('');
+
+  // ---- 7) Полнота печатного отчёта (PDF/HTML) ----
+  console.log('7) ПОЛНОТА ПЕЧАТНОГО ОТЧЁТА (docs/dashboard_report.html · .pdf):');
+  if (!REPORT_HTML) { report('отчёт docs/dashboard_report.html отсутствует — пересобери: python docs/gen_dashboard_report.py'); }
+  else {
+    const rPlain = REPORT_HTML.replace(/<[^>]*>/g, ' ').replace(/[ \t]+/g, ' ');
+    // файлы должны существовать
+    if (!fs.existsSync(reportPdf)) report('pdf-отчёт отсутствует: ' + path.basename(reportPdf));
+    // 7a) все афиши (по title) присутствуют
+    let rAnnOk = 0;
+    ann.forEach(function (a) {
+      if (rPlain.indexOf(a.title) >= 0) rAnnOk++;
+      else report('отчёт: афиша «' + a.title + '» не найдена в печатном отчёте');
+    });
+    ok('в отчёте присутствуют ' + rAnnOk + '/' + ann.length + ' афиш');
+    // 7b) все имена залов присутствуют
+    let rHallOk = 0;
+    Object.keys(roomNames).forEach(function (rk) {
+      const nm = hallNames[rk];
+      if (!nm) { report('отчёт: зал ' + rk + ' без имени в HALLS'); return; }
+      if (rPlain.indexOf(nm) >= 0) rHallOk++;
+      else report('отчёт: зал «' + nm + '» не найден в печатном отчёте');
+    });
+    ok('в отчёте присутствуют ' + rHallOk + '/' + Object.keys(roomNames).length + ' имён залов');
+    // 7c) все роли присутствуют
+    let rSubjOk = 0;
+    Object.keys(subjects).forEach(function (k) {
+      if (rPlain.indexOf(subjects[k].title) >= 0) rSubjOk++;
+      else report('отчёт: роль «' + subjects[k].title + '» не найдена в печатном отчёте');
+    });
+    ok('в отчёте присутствуют ' + rSubjOk + '/' + Object.keys(subjects).length + ' ролей');
+    // 7d) счётчики KPI совпадают (афиш/залов/ролей/приглашений)
+    let subjInv = ann.reduce(function (t, a) { return t + (a.subjects ? a.subjects.length : 0); }, 0);
+    const kpiNums = [String(ann.length), String(Object.keys(roomNames).length),
+      String(Object.keys(subjects).length), String(subjInv)];
+    let kpiOk = kpiNums.every(function (n) { return rPlain.indexOf(n) >= 0; });
+    if (kpiOk) ok('KPI-цифры совпадают (афиш=' + ann.length + ', залов=' + Object.keys(roomNames).length + ', ролей=' + Object.keys(subjects).length + ', приглашений=' + subjInv + ')');
+    else report('в печатном отчёте не найдена одна из KPI-цифр: ' + kpiNums.join(', '));
+    if (rAnnOk === ann.length && rHallOk === Object.keys(roomNames).length &&
+        rSubjOk === Object.keys(subjects).length && kpiOk)
+      ok('печатный отчёт выводит контент ПОЛНОСТЬЮ и совпадает');
+  }
   console.log('');
 
   console.log((failures === 0
