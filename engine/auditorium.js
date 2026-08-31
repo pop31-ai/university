@@ -147,6 +147,37 @@
     return out;
   }
 
+  // Универсальное наполнение: сетка прямоугольных столов/стендов/ячеек.
+  // kind — тип мебели для отрисовки (стол/стенд/стойка), extra конфигурирует детали.
+  function furnGrid(metr, cfg) {
+    var out = [];
+    var gap = cfg.gap || 2.6;
+    var rows = Math.max(2, Math.floor(metr.d / gap));
+    var cols = Math.max(1, Math.floor((metr.w - 6) / 4));
+    for (var r = 0; r < Math.min(rows, cfg.maxRows || 6); r++) {
+      var x = cfg.x0 || metr.w / 2;
+      for (var c = 0; c < Math.min(cols, cfg.maxCols || 4); c++) {
+        var z = (cfg.z0 || 8) + r * gap + (c % 2) * 0.6;
+        out.push({
+          x: x, z: z,
+          w: cfg.w, d: cfg.d, h: cfg.h,
+          kind: cfg.kind, s: (c + r) % 2, extra: cfg.extra
+        });
+      }
+    }
+    return out;
+  }
+  // Длинные ряды станочного/цехового типа вдоль x.
+  function furnRows(metr, cfg) {
+    var out = [];
+    var rows = Math.max(2, Math.floor((metr.d - 10) / (cfg.rowGap || 6)));
+    for (var r = 0; r < rows; r++) {
+      var z = (cfg.z0 || 12) + r * (cfg.rowGap || 6);
+      out.push({ x: 0, z: z, w: metr.w - 6, d: cfg.d, h: cfg.h, kind: cfg.kind, s: r % 2, extra: cfg.extra });
+    }
+    return out;
+  }
+
   // ---------- МОДЕЛИ ЗАЛОВ (ВУЗ = ИНФРАСТРУКТУРА КАФЕДР) ----------
   // Мир: x = вдоль доски (0..metr.w), z = от доски к входу (0..metr.d),
   // y = высота (пол 0, потолок metr.h).
@@ -162,13 +193,25 @@
       floor: o.floor, floorDark: o.floorDark, window: o.window, ceil: o.ceil,
       surface: o.surface,
       podium: o.podium,
-      furniture: o.furniture,        // desks | tables | seats | stands
+      furniture: o.furniture,        // desks | tables | seats | stands | benches | fixture
+      fixture: o.fixture,            // подвид мебели для furniture==='fixture' (напр. machines | rigs)
+      open: o.open,                  // внешняя/открытая площадка (нет лектора-подиума)
       lecturer: o.lecturer,
       isCinema: o.isCinema,
       spiritColor: o.spiritColor,
       view: o.view,
       views: o.views,
-      _furn: (o.furniture === 'desks' ? desks : o.furniture === 'tables' ? tables : o.furniture === 'seats' ? seats : o.furniture === 'benches' ? benches : stands)(o.metr || { w: 30, d: 30 })
+      _furn: (function () {
+        var fc = o.fixtureData || o.fixture;
+        var f = o.furniture;
+        if (f === 'desks') return desks(o.metr || { w: 30, d: 30 });
+        if (f === 'tables') return tables(o.metr || { w: 30, d: 30 });
+        if (f === 'seats') return seats(o.metr || { w: 30, d: 30 });
+        if (f === 'benches') return benches(o.metr || { w: 30, d: 30 });
+        if (f === 'stands') return stands(o.metr || { w: 30, d: 30 });
+        if (f === 'fixture') return fc ? (o.fixtureLayout === 'rows' ? furnRows : furnGrid)(o.metr || { w: 30, d: 30 }, fc) : furnRows(o.metr || { w: 30, d: 30 }, { kind: 'generic', w: 4, d: 2, h: 1.1 });
+        return stands(o.metr || { w: 30, d: 30 });
+      })()
     };
   }
 
@@ -252,6 +295,198 @@
         'кафедра': { cx: 7.5, cz: 15, tx: 15, tz: 2 },
         'доска':   { cx: 24, cz: 15, tx: 15, tz: 1.4 },
         'облёт':   { cx: 4, cz: 4, tx: 22, tz: 22 }
+      }
+    }),
+    // НИР-ЛАБОРАТОРИЯ · 30×40 · научная лаборатория СНО, прототипы и стойки приборов.
+    lab_rnd: roomBase({
+      metr: { w: 30, d: 40, h: 6 },
+      name: 'НИР-ЛАБОРАТОРИЯ',
+      cathedra: 'НИР-лаборатория · научная работа · прототипы и приборы',
+      wall: '#a8bfc9', wallHi: '#bfd4de', wallLo: '#87a2af',
+      floor: '#6d7f8c', floorDark: '#54646f', window: '#d6ecff', ceil: '#cbd7de',
+      surface: { bzc: 1.2, bw: 12, bly: 0.9, bty: 4.3,
+        frame: '#3a4a58', bg: '#244d5e', chalk: '#eef6f8' },
+      podium: { z: 2.6, w: 4.0, d: 1.2, h: 1.0 },
+      furniture: 'fixture',
+      fixtureData: { kind: 'rnd', w: 2.6, d: 1.4, h: 0.9, gap: 3.0, z0: 10, maxRows: 5, extra: 'proto' },
+      lecturer: true,
+      spiritColor: '#bff0ff',
+      view: { cx: 24, cz: 20, tx: 15, tz: 1.4 },
+      views: {
+        'кафедра': { cx: 7.5, cz: 20, tx: 15, tz: 2 },
+        'доска':   { cx: 24, cz: 20, tx: 15, tz: 1.4 },
+        'облёт':   { cx: 4, cz: 4, tx: 22, tz: 34 }
+      }
+    }),
+    // ОКР-БЮРО · 30×30 · опытно-конструкторское бюро, чертёжные кульманы.
+    bureau_okr: roomBase({
+      metr: { w: 30, d: 30, h: 6 },
+      name: 'ОКР-БЮРО',
+      cathedra: 'ОКР-бюро · опытно-конструкторская работа · чертежи',
+      wall: '#cdbfa4', wallHi: '#ddd0b4', wallLo: '#b8aa8c',
+      floor: '#8a7a58', floorDark: '#6d5f42', window: '#e7f2ff', ceil: '#ddd3b8',
+      surface: { bzc: 1.2, bw: 12, bly: 0.9, bty: 4.3,
+        frame: '#5c4a30', bg: '#fbf8ee', chalk: '#1d3a6b' },
+      podium: { z: 2.6, w: 4.0, d: 1.2, h: 1.0 },
+      furniture: 'fixture',
+      fixtureData: { kind: 'bureau', w: 2.2, d: 1.5, h: 0.9, gap: 2.6, z0: 9, maxRows: 5, extra: 'draft' },
+      lecturer: true,
+      spiritColor: '#ffe9a8',
+      view: { cx: 24, cz: 15, tx: 15, tz: 1.4 },
+      views: {
+        'кафедра': { cx: 7.5, cz: 15, tx: 15, tz: 2 },
+        'доска':   { cx: 24, cz: 15, tx: 15, tz: 1.4 },
+        'облёт':   { cx: 4, cz: 4, tx: 22, tz: 22 }
+      }
+    }),
+    // МАШИНОСТРОИТЕЛЬНЫЙ ЦЕХ · 40×30 · станочные ряды (токарные, фрезерные).
+    machine_shop: roomBase({
+      metr: { w: 40, d: 30, h: 7 },
+      name: 'МАШИНОСТРОИТЕЛЬНЫЙ ЦЕХ',
+      cathedra: 'Машиностроительный цех · станки и изготовление деталей',
+      wall: '#b9b4a8', wallHi: '#cbc7ba', wallLo: '#9c9788',
+      floor: '#6f6a5e', floorDark: '#56524a', window: '#ffe4b8', ceil: '#cfcabd',
+      surface: { bzc: 1.2, bw: 12, bly: 0.9, bty: 4.3,
+        frame: '#4a463c', bg: '#c6b98f', chalk: '#2a2418' },
+      podium: { z: 2.6, w: 4.0, d: 1.2, h: 1.0 },
+      furniture: 'fixture',
+      fixtureLayout: 'rows',
+      fixtureData: { kind: 'machine', w: 4, d: 2.0, h: 1.1, rowGap: 6, z0: 12, maxRows: 4, extra: 'cnc' },
+      lecturer: true,
+      spiritColor: '#ffcf6b',
+      view: { cx: 32, cz: 15, tx: 20, tz: 1.4 },
+      views: {
+        'кафедра': { cx: 8, cz: 15, tx: 20, tz: 2 },
+        'цех':     { cx: 32, cz: 15, tx: 20, tz: 1.4 },
+        'облёт':   { cx: 4, cz: 4, tx: 30, tz: 24 }
+      }
+    }),
+    // ЭЛЕКТРО-РАДИОМАСТЕРСКАЯ · 30×30 · стенды пайки, стеллажи деталей.
+    elec_shop: roomBase({
+      metr: { w: 30, d: 30, h: 6 },
+      name: 'ЭЛЕКТРО-РАДИОМАСТЕРСКАЯ',
+      cathedra: 'Электро-радиомастерская · сборка и наладка электроники',
+      wall: '#c2bccb', wallHi: '#d6d0df', wallLo: '#a49db5',
+      floor: '#787388', floorDark: '#5e5a6c', window: '#dff0ff', ceil: '#d3ceda',
+      surface: { bzc: 1.2, bw: 11, bly: 0.9, bty: 4.3,
+        frame: '#544a66', bg: '#3d4a6b', chalk: '#eef3fb' },
+      podium: { z: 2.6, w: 3.6, d: 1.2, h: 1.0 },
+      furniture: 'fixture',
+      fixtureData: { kind: 'elec', w: 2.4, d: 1.4, h: 0.95, gap: 2.8, z0: 10, maxRows: 5, extra: 'rack' },
+      lecturer: true,
+      spiritColor: '#cff2ff',
+      view: { cx: 24, cz: 15, tx: 15, tz: 1.4 },
+      views: {
+        'кафедра': { cx: 7.5, cz: 15, tx: 15, tz: 2 },
+        'доска':   { cx: 24, cz: 15, tx: 15, tz: 1.4 },
+        'облёт':   { cx: 4, cz: 4, tx: 22, tz: 22 }
+      }
+    }),
+    // ИСПЫТАТЕЛЬНЫЙ СТЕНД · 40×40 · испытательные машины и стенды.
+    test_stand: roomBase({
+      metr: { w: 40, d: 40, h: 7 },
+      name: 'ИСПЫТАТЕЛЬНЫЙ СТЕНД',
+      cathedra: 'Испытательный стенд · проверка прочности и надёжности',
+      wall: '#aeb2bd', wallHi: '#c3c7d1', wallLo: '#8f939e',
+      floor: '#6b6f78', floorDark: '#52565e', window: '#dbeaff', ceil: '#c6cad1',
+      surface: { bzc: 1.2, bw: 13, bly: 0.9, bty: 4.3,
+        frame: '#3f434b', bg: '#4a5560', chalk: '#f2f5f8' },
+      podium: { z: 2.6, w: 4.2, d: 1.2, h: 1.05 },
+      furniture: 'fixture',
+      fixtureLayout: 'rows',
+      fixtureData: { kind: 'rig', w: 3.2, d: 2.0, h: 1.2, rowGap: 6, z0: 12, maxRows: 4, extra: 'clamp' },
+      lecturer: true,
+      spiritColor: '#ffe082',
+      view: { cx: 32, cz: 20, tx: 20, tz: 1.4 },
+      views: {
+        'кафедра': { cx: 8, cz: 20, tx: 20, tz: 2 },
+        'стенд':   { cx: 32, cz: 20, tx: 20, tz: 1.4 },
+        'облёт':   { cx: 4, cz: 4, tx: 30, tz: 34 }
+      }
+    }),
+    // ЦЕНТР КОЛЛЕКТИВНОГО ПОЛЬЗОВАНИЯ · 40×40 · острова общих приборов.
+    cpc: roomBase({
+      metr: { w: 40, d: 40, h: 6 },
+      name: 'ЦЕНТР КОЛЛЕКТИВНОГО ПОЛЬЗОВАНИЯ',
+      cathedra: 'Центр коллективного пользования · общее оборудование кафедр',
+      wall: '#b9c7b4', wallHi: '#cddac9', wallLo: '#9cae94',
+      floor: '#74806c', floorDark: '#5a6554', window: '#e0f5e4', ceil: '#d0dcc8',
+      surface: { bzc: 1.2, bw: 13, bly: 0.9, bty: 4.3,
+        frame: '#40523c', bg: '#2c5a3a', chalk: '#eef7f0' },
+      podium: { z: 2.6, w: 4.2, d: 1.2, h: 1.0 },
+      furniture: 'fixture',
+      fixtureData: { kind: 'cpc', w: 3.6, d: 2.4, h: 1.1, gap: 5.0, z0: 12, maxRows: 4, extra: 'island' },
+      lecturer: true,
+      spiritColor: '#c9f2c9',
+      view: { cx: 32, cz: 20, tx: 20, tz: 1.4 },
+      views: {
+        'кафедра': { cx: 8, cz: 20, tx: 20, tz: 2 },
+        'центр':   { cx: 32, cz: 20, tx: 20, tz: 1.4 },
+        'облёт':   { cx: 4, cz: 4, tx: 30, tz: 34 }
+      }
+    }),
+    // ВНЕШНИЙ ИСПЫТАТЕЛЬНЫЙ ПОЛИГОН · 60×40 · открытая площадка, разметка, мишени.
+    test_range: roomBase({
+      metr: { w: 60, d: 40, h: 6 },
+      name: 'ВНЕШНИЙ ИСПЫТАТЕЛЬНЫЙ ПОЛИГОН',
+      cathedra: 'Испытательный полигон · полевые проверки кафедр',
+      wall: '#b8cfc4', wallHi: '#cce0d6', wallLo: '#9db8ab',
+      floor: '#7f947f', floorDark: '#64755f', window: '#e8f7ff', ceil: '#cddcd3',
+      surface: { bzc: 1.2, bw: 12, bly: 0.9, bty: 4.2,
+        frame: '#4f6a5c', bg: '#cfe0c8', chalk: '#22352a' },
+      podium: null,
+      open: true,
+      furniture: 'fixture',
+      fixtureData: { kind: 'range', w: 4.0, d: 3.0, h: 0.6, gap: 8.0, z0: 14, maxRows: 2, maxCols: 3, extra: 'target' },
+      lecturer: false,
+      spiritColor: '#bff2cf',
+      view: { cx: 46, cz: 20, tx: 30, tz: 1.4 },
+      views: {
+        'полигон': { cx: 30, cz: 20, tx: 30, tz: 2 },
+        'мишень':  { cx: 46, cz: 20, tx: 30, tz: 1.4 },
+        'облёт':   { cx: 6, cz: 6, tx: 40, tz: 32 }
+      }
+    }),
+    // ОПЫТНОЕ ПРОИЗВОДСТВО · 30×30 · экспериментальные ячейки выпуска поделок.
+    pilot_plant: roomBase({
+      metr: { w: 30, d: 30, h: 6 },
+      name: 'ОПЫТНОЕ ПРОИЗВОДСТВО',
+      cathedra: 'Опытное производство · выпуск малых партий и поделок кафедр',
+      wall: '#c7b7a0', wallHi: '#d7c9b2', wallLo: '#b0a087',
+      floor: '#837662', floorDark: '#675b4a', window: '#ffe3b0', ceil: '#d9ccb6',
+      surface: { bzc: 1.2, bw: 11, bly: 0.9, bty: 4.3,
+        frame: '#5e4f38', bg: '#c6a96e', chalk: '#332412' },
+      podium: { z: 2.6, w: 3.6, d: 1.2, h: 1.0 },
+      furniture: 'fixture',
+      fixtureData: { kind: 'pilot', w: 2.8, d: 1.6, h: 0.95, gap: 3.2, z0: 10, maxRows: 5, extra: 'cell' },
+      lecturer: true,
+      spiritColor: '#ffd98a',
+      view: { cx: 24, cz: 15, tx: 15, tz: 1.4 },
+      views: {
+        'кафедра': { cx: 7.5, cz: 15, tx: 15, tz: 2 },
+        'производство': { cx: 24, cz: 15, tx: 15, tz: 1.4 },
+        'облёт':   { cx: 4, cz: 4, tx: 22, tz: 22 }
+      }
+    }),
+    // ЦЕНТР ВНЕШНИХ СВЯЗЕЙ: круглый стол, глобус, экраны-партнёры.
+    uni_net: roomBase({
+      metr: { w: 30, d: 30, h: 6 },
+      name: 'ЦЕНТР ВНЕШНИХ СВЯЗЕЙ',
+      cathedra: 'Университетская сеть · сотрудничество и обмен с другими универами',
+      wall: '#b8c6d8', wallHi: '#c9d6e6', wallLo: '#a3b3c8',
+      floor: '#8f9fb2', floorDark: '#74869b', window: '#d7ecff', ceil: '#ccd8e8',
+      surface: { bzc: 1.0, bw: 11, bly: 0.9, bty: 4.3,
+        frame: '#5d6f85', bg: '#eef4fb', chalk: '#21324d' },
+      podium: { z: 2.6, w: 3.6, d: 1.2, h: 1.0 },
+      furniture: 'fixture',
+      fixtureData: { kind: 'net', w: 3.0, d: 1.6, h: 0.95, gap: 3.4, z0: 10, maxRows: 4, extra: 'round' },
+      lecturer: true,
+      spiritColor: '#bcd6ff',
+      view: { cx: 24, cz: 15, tx: 15, tz: 1.4 },
+      views: {
+        'кафедра': { cx: 7.5, cz: 15, tx: 15, tz: 2 },
+        'сеть':  { cx: 24, cz: 15, tx: 15, tz: 1.4 },
+        'облёт': { cx: 4, cz: 4, tx: 22, tz: 22 }
       }
     }),
     // КИНОЗАЛ: экран, ряды кресел, затемнение.
@@ -646,12 +881,118 @@
     }
   }
 
+  // ---------- МЕБЕЛЬ/ОСНАСТКА ОХВАТНЫХ ЗАЛОВ (fixture) ----------
+  // kind'ы: rnd, bureau, machine, elec, rig, cpc, range, pilot, generic.
+  function drawFixtures(ctx, cam, W, H, R) {
+    var fi = R._furn || [];
+    var noise = makeNoise(41);
+    for (var i = 0; i < fi.length; i++) {
+      var f = fi[i];
+      var k = f.kind || 'generic';
+      var p0 = project(cam, f.x - f.w / 2, f.h, f.z - f.d / 2, W, H);
+      var p1 = project(cam, f.x + f.w / 2, f.h, f.z - f.d / 2, W, H);
+      var p2 = project(cam, f.x + f.w / 2, f.h, f.z + f.d / 2, W, H);
+      var p3 = project(cam, f.x - f.w / 2, f.h, f.z + f.d / 2, W, H);
+      if (!p0 || !p1) continue;
+      var top = f.s ? '#a8a39b' : '#92918d';
+      if (k === 'rnd' || k === 'bureau') top = f.s ? '#b2a488' : '#a59678';
+      if (k === 'elec') top = f.s ? '#7f8bb0' : '#6d7aa0';
+      if (k === 'machine' || k === 'rig') top = f.s ? '#6e7a86' : '#5c6874';
+      if (k === 'cpc') top = f.s ? '#5f9a6f' : '#4f865d';
+      if (k === 'range') top = f.s ? '#d5c08a' : '#c4ae76';
+      if (k === 'pilot') top = f.s ? '#c9a26a' : '#b99256';
+      if (k === 'net') top = f.s ? '#7f9ac2' : '#6d88b0';
+      drawPoly(ctx, [p0, p1, p2, p3], top, null);
+      // ноги
+      var e0 = project(cam, f.x - f.w / 2, 0, f.z - f.d / 2, W, H);
+      var e1 = project(cam, f.x + f.w / 2, 0, f.z - f.d / 2, W, H);
+      var f1 = project(cam, f.x + f.w / 2, 0, f.z + f.d / 2, W, H);
+      var f0 = project(cam, f.x - f.w / 2, 0, f.z + f.d / 2, W, H);
+      if (e0 && e1) drawPoly(ctx, [e0, e1, f1, f0], 'rgba(30,30,32,0.45)', null);
+      // детали сверху по виду
+      var cx = project(cam, f.x, f.h + 0.22, f.z, W, H);
+      if (!cx) continue;
+      if (k === 'rnd') {
+        // прототип-куб на столе
+        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        ctx.beginPath(); ctx.arc(cx[0], cx[1], Math.max(2.5, cx[2] * 0.016), 0, 7); ctx.fill();
+        ctx.fillStyle = 'rgba(40,120,150,0.7)';
+        ctx.beginPath(); ctx.arc(cx[0] + 8, cx[1] - 6, Math.max(2, cx[2] * 0.012), 0, 7); ctx.fill();
+      } else if (k === 'bureau') {
+        // кульман с чертежом
+        ctx.fillStyle = 'rgba(255,255,255,0.85)';
+        ctx.fillRect(cx[0] - 10, cx[1] - 2, 20, 14);
+        ctx.strokeStyle = 'rgba(60,80,140,0.8)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(cx[0] - 8, cx[1] + 10); ctx.lineTo(cx[0] + 8, cx[1] + 2); ctx.stroke();
+      } else if (k === 'machine') {
+        // станок: корпус + ось/шпиндель
+        ctx.fillStyle = 'rgba(40,50,58,0.9)';
+        ctx.fillRect(cx[0] - 14, cx[1] - 8, 28, 16);
+        ctx.fillStyle = 'rgba(200,210,220,0.9)';
+        ctx.fillRect(cx[0] + 6, cx[1] - 9, 10, 5);
+      } else if (k === 'elec') {
+        // осциллограф-экран + коробки деталей
+        ctx.fillStyle = 'rgba(30,45,60,0.9)';
+        ctx.fillRect(cx[0] - 8, cx[1] - 6, 16, 10);
+        ctx.fillStyle = 'rgba(120,255,160,0.8)';
+        ctx.fillRect(cx[0] - 5, cx[1] - 4, 5, 3); ctx.fillRect(cx[0] + 2, cx[1] - 1, 4, 4);
+      } else if (k === 'rig' || k === 'range') {
+        // испытательная рама с зажимом/мишенью
+        ctx.fillStyle = 'rgba(120,40,40,0.85)';
+        ctx.fillRect(cx[0] - 3, cx[1] - 14, 6, 14);
+        ctx.strokeStyle = 'rgba(200,140,60,0.9)'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(cx[0], cx[1] - 16, Math.max(3, cx[2] * 0.02), 0, 7); ctx.stroke();
+      } else if (k === 'cpc') {
+        // остров с приборами
+        ctx.fillStyle = 'rgba(220,255,220,0.7)';
+        ctx.fillRect(cx[0] - 12, cx[1] - 4, 24, 8);
+        ctx.fillStyle = 'rgba(30,90,50,0.8)';
+        ctx.fillRect(cx[0] - 4, cx[1] - 9, 8, 5);
+      } else if (k === 'pilot') {
+        // ячейка с поделкой/коробкой
+        ctx.fillStyle = 'rgba(120,80,40,0.9)';
+        ctx.fillRect(cx[0] - 7, cx[1] - 6, 14, 12);
+        ctx.fillStyle = 'rgba(255,220,150,0.9)';
+        ctx.fillRect(cx[0] - 2, cx[1] - 8, 7, 5);
+      } else if (k === 'net') {
+        // круглый стол сотрудничества + глобус: связь с другими универами
+        ctx.fillStyle = 'rgba(255,255,255,0.9)';
+        ctx.beginPath(); ctx.ellipse(cx[0], cx[1], Math.max(12, cx[2] * 0.07), 6, 0, 0, 7); ctx.fill();
+        ctx.strokeStyle = 'rgba(40,90,140,0.8)'; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.ellipse(cx[0], cx[1], Math.max(12, cx[2] * 0.07), 6, 0, 0, 7); ctx.stroke();
+        ctx.fillStyle = 'rgba(60,140,200,0.9)';
+        ctx.beginPath(); ctx.arc(cx[0] + 16, cx[1] - 10, Math.max(4, cx[2] * 0.028), 0, 7); ctx.fill();
+        ctx.strokeStyle = 'rgba(200,230,255,0.8)'; ctx.lineWidth = 1;
+        for (var g = 0; g < 3; g++) {
+          ctx.beginPath(); ctx.ellipse(cx[0] + 16, cx[1] - 10, Math.max(4, cx[2] * 0.028) * (0.4 + g * 0.3), Math.max(1.6, cx[2] * 0.012), 0, 0, 7); ctx.stroke();
+        }
+      }
+      // блёстки-мелочь на столе
+      ctx.fillStyle = 'rgba(255,255,255,0.35)';
+      ctx.fillRect(cx[0] - 10 + (noise() * 20), cx[1] - 2, 2, 2);
+      ctx.fillRect(cx[0] - 8 + (noise() * 18), cx[1] + 4, 2, 2);
+    }
+    // стеллажи вдоль стен для мастерских
+    if (fi.length && (fi[0].kind === 'elec' || fi[0].kind === 'pilot')) {
+      ctx.fillStyle = 'rgba(40,36,45,0.85)';
+      for (var s = 0; s < 4; s++) {
+        var sx = 3 + s; var sz = (R.metr.d || 30) - 2;
+        var q0 = project(cam, sx - 0.7, 0, sz, W, H);
+        var q1 = project(cam, sx + 0.7, 0, sz, W, H);
+        var q2 = project(cam, sx + 0.7, 1.6, sz, W, H);
+        var q3 = project(cam, sx - 0.7, 1.6, sz, W, H);
+        if (q0 && q1) drawPoly(ctx, [q0, q1, q2, q3], 'rgba(40,36,45,0.9)', null);
+      }
+    }
+  }
+
   function drawFurniture(ctx, cam, W, H, R) {
     if (R.furniture === 'desks') drawDesks(ctx, cam, W, H, R);
     else if (R.furniture === 'tables') drawTables(ctx, cam, W, H, R);
     else if (R.furniture === 'seats') drawSeats(ctx, cam, W, H, R);
     else if (R.furniture === 'stands') drawStands(ctx, cam, W, H, R);
     else if (R.furniture === 'benches') drawBenches(ctx, cam, W, H, R);
+    else if (R.furniture === 'fixture') drawFixtures(ctx, cam, W, H, R);
   }
 
   // ---------- ЛЕКТОР ----------

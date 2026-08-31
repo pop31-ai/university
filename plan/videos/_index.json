@@ -1,5 +1,5 @@
 {
-  "produced": 59,
+  "produced": 68,
   "note": "Ролик = что сказать ⊕ как грамотно рассказать: каждая сцена несёт конспект (под запись), дух просвещения (зачем/как смотреть) и рассказ (план/темп/монтаж). Предметные ролики наполняются конспектом; полиарт — пространством и камерами (ноу-хау, доводится вручную).",
   "videos": [
     {
@@ -355,6 +355,60 @@
       "engine": "corkboard",
       "filled": 9,
       "len": 62
+    },
+    {
+      "id": "b01_rnd",
+      "engine": "auditorium",
+      "filled": 0,
+      "len": 60
+    },
+    {
+      "id": "b02_okr",
+      "engine": "auditorium",
+      "filled": 0,
+      "len": 60
+    },
+    {
+      "id": "b03_shop",
+      "engine": "auditorium",
+      "filled": 0,
+      "len": 60
+    },
+    {
+      "id": "b04_elec",
+      "engine": "auditorium",
+      "filled": 0,
+      "len": 60
+    },
+    {
+      "id": "b05_stand",
+      "engine": "auditorium",
+      "filled": 0,
+      "len": 60
+    },
+    {
+      "id": "b06_cpc",
+      "engine": "auditorium",
+      "filled": 0,
+      "len": 60
+    },
+    {
+      "id": "b07_range",
+      "engine": "auditorium",
+      "filled": 0,
+      "len": 60
+    },
+    {
+      "id": "b08_pilot",
+      "engine": "auditorium",
+      "filled": 0,
+      "len": 60
+    },
+    {
+      "id": "b09_net",
+      "engine": "auditorium",
+      "filled": 0,
+      "len": 60
     }
   ]
 }

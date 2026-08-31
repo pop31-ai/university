@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Инфраструктурно-коммуникационная карта виртуального университета</title>
+<style>
+  @page { size: A4; margin: 16mm 15mm 16mm 15mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", "PT Sans", Arial, sans-serif; color: #1c2520; margin: 0; font-size: 10.5pt; line-height: 1.42; }
+  .page { max-width: 180mm; margin: 0 auto; }
+  h1 { font-size: 19pt; margin: 0 0 2mm; color: #10324a; }
+  h2 { font-size: 13.5pt; color: #10324a; border-bottom: 1.6pt solid #bcd6ff; padding-bottom: 1.5mm; margin: 7mm 0 3mm; page-break-after: avoid; }
+  h3 { font-size: 11.5pt; color: #234a6e; margin: 5mm 0 2mm; page-break-after: avoid; }
+  p { margin: 0 0 2.5mm; text-align: justify; }
+  .subtitle { font-size: 10.5pt; color: #556; margin-bottom: 5mm; }
+  .meta { font-size: 9pt; color: #667; border: 0.6pt solid #ccd; padding: 2mm 3mm; background: #f4f7fc; margin-bottom: 5mm; }
+  figcaption { font-size: 8.5pt; color: #556; text-align: center; margin: 1.5mm 0 4mm; }
+  figure { margin: 3mm 0 1mm; text-align: center; page-break-inside: avoid; }
+  .grid2 { display: flex; gap: 5mm; }
+  .grid2 > figure { flex: 1; }
+  ul { margin: 1mm 0 3mm 5mm; padding: 0; }
+  li { margin-bottom: 1.2mm; }
+  table { border-collapse: collapse; width: 100%; margin: 2mm 0 4mm; font-size: 9.5pt; }
+  th, td { border: 0.6pt solid #aab; padding: 1.6mm 2mm; text-align: left; vertical-align: top; }
+  th { background: #e8eefc; color: #10324a; }
+  tr:nth-child(even) td { background: #f6f9fe; }
+  .callout { border-left: 3pt solid #2f7bb0; background: #eef5fc; padding: 2.5mm 3mm; margin: 3mm 0; }
+  .callout b { color: #10324a; }
+  .footer { margin-top: 8mm; font-size: 8pt; color: #889; border-top: 0.6pt solid #ccd; padding-top: 1.5mm; }
+  .pagebreak { page-break-before: always; }
+  .tag { display: inline-block; font-size: 8pt; background: #d6e6ff; color: #10324a; border-radius: 3px; padding: 0 2mm; margin-right: 1mm; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>Инфраструктурно-коммуникационная карта виртуального университета</h1>
+<div class="subtitle">Единый контур кампуса: залы, кафедры, реестры и внешние связи</div>
+<div class="meta">
+  <b>Тип:</b> инфраструктурно-коммуникационный документ (ИКД) ·
+  <b>Версия:</b> 1.0 ·
+  <b>Аудитория ВУЗа:</b> кафедры, НИР/ОКР-подразделения, центр внешних связей, испытательные службы ·
+  <b>Статус:</b> проект к внедрению
+</div>
+
+<p>
+Настоящий документ фиксирует <b>инфраструктуру</b> виртуального университета (набор помещений-кафедр с их оснасткой)
+и <b>коммуникационный контур</b> — каналы, по которым данные, конспекты, реестры и решения перемещаются между залами,
+реестрами и внешними организациями. Документ описывает, <i>как устроен</i> кампус и <i>как его части общаются</i>.
+</p>
+
+<h2>1. Цель и место документа в системе</h2>
+<p>ИКД отвечает на три вопроса:</p>
+<ul>
+  <li><b>Что есть</b> — перечень моделей помещения (аудитории, лаборатории, цеха, стенды, полигон, центр внешних связей) с их метражом и назначением;</li>
+  <li><b>Как связано</b> — топология и каналы передачи (доска → мазки → сессия → реестр → поиск → читатель);</li>
+  <li><b>С кем вовне</b> — внешние коммуникации: другие университеты, совместные НИР/ОКР, сетевые программы, общий доступ к оборудованию.</li>
+</ul>
+<p class="callout"><b>Принцип кампуса:</b> «каждая кафедра владеет своей моделью зала, а конспект сессии привязан к залу через <code>room.model</code>». Это делает инфраструктуру <b>самосогласованной</b>: зал по теме — и конспект по теме.</p>
+
+<h2 class="pagebreak">2. Топология кампуса</h2>
+<p>Ниже — текущий набор моделей помещений (ВУЗ как инфраструктура кафедр). Каждый зал имеет собственный метраж, доску-поверхность, кафедру-подиум и оснастку.</p>
+
+<figure>
+<svg viewBox="0 0 920 430" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial" font-size="10">
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#2f7bb0"/></marker>
+  </defs>
+  <rect x="20" y="20" width="170" height="70" rx="8" fill="#e8eefc" stroke="#6d88b0"/>
+  <text x="105" y="48" text-anchor="middle" font-weight="700" fill="#10324a">ЦЕНТР ВНЕШНИХ СВЯЗЕЙ</text>
+  <text x="105" y="64" text-anchor="middle" fill="#333">uni_net · 30×30</text>
+  <text x="105" y="79" text-anchor="middle" fill="#555">круглый стол · глобус · экраны</text>
+
+  <rect x="240" y="20" width="170" height="70" rx="8" fill="#eaf6ee" stroke="#4f865d"/>
+  <text x="325" y="48" text-anchor="middle" font-weight="700" fill="#1f4f30">ЦКП · общее оборудование</text>
+  <text x="325" y="64" text-anchor="middle" fill="#333">cpc · 40×40</text>
+  <text x="325" y="79" text-anchor="middle" fill="#555">острова приборов · спектр/микроскоп</text>
+
+  <rect x="460" y="20" width="170" height="70" rx="8" fill="#fdf3e0" stroke="#c4ae76"/>
+  <text x="545" y="48" text-anchor="middle" font-weight="700" fill="#6a4a10">ОПЫТНОЕ ПРОИЗВОДСТВО</text>
+  <text x="545" y="64" text-anchor="middle" fill="#333">pilot_plant · 30×30</text>
+  <text x="545" y="79" text-anchor="middle" fill="#555">ячейки выпуска малых партий</text>
+
+  <rect x="680" y="20" width="220" height="70" rx="8" fill="#e7f0f8" stroke="#4f7fb0"/>
+  <text x="790" y="48" text-anchor="middle" font-weight="700" fill="#10324a">БАЗОВЫЕ АУДИТОРИИ</text>
+  <text x="790" y="64" text-anchor="middle" fill="#333">aud_math · lab_phys · lab_chem · wood</text>
+  <text x="790" y="79" text-anchor="middle" fill="#555">парты · опытные столы · верстаки</text>
+
+  <rect x="40" y="140" width="200" height="70" rx="8" fill="#eaf0f8" stroke="#5c6874"/>
+  <text x="140" y="168" text-anchor="middle" font-weight="700" fill="#25323e">НИР-ЛАБОРАТОРИЯ</text>
+  <text x="140" y="184" text-anchor="middle" fill="#333">lab_rnd · 30×40 · стойки приборов</text>
+  <text x="140" y="199" text-anchor="middle" fill="#555">гипотеза → прототип → опыт</text>
+
+  <rect x="300" y="140" width="200" height="70" rx="8" fill="#fdf6e9" stroke="#8a7650"/>
+  <text x="400" y="168" text-anchor="middle" font-weight="700" fill="#4a3a14">ОКР-БЮРО</text>
+  <text x="400" y="184" text-anchor="middle" fill="#333">bureau_okr · 30×30 · кульманы</text>
+  <text x="400" y="199" text-anchor="middle" fill="#555">ТЗ → чертёж → прототип</text>
+
+  <rect x="560" y="140" width="200" height="70" rx="8" fill="#eceff4" stroke="#5c6874"/>
+  <text x="660" y="168" text-anchor="middle" font-weight="700" fill="#25323e">МАШИНОСТРОИТЕЛЬНЫЙ ЦЕХ</text>
+  <text x="660" y="184" text-anchor="middle" fill="#333">machine_shop · 40×30 · станочные ряды</text>
+  <text x="660" y="199" text-anchor="middle" fill="#555">деталь · допуск · контроль</text>
+
+  <rect x="560" y="250" width="200" height="70" rx="8" fill="#eceff4" stroke="#5c6874"/>
+  <text x="660" y="278" text-anchor="middle" font-weight="700" fill="#25323e">ЭЛЕКТРО-РАДИОМАСТЕРСКАЯ</text>
+  <text x="660" y="294" text-anchor="middle" fill="#333">elec_shop · 30×30 · стенды пайки</text>
+  <text x="660" y="309" text-anchor="middle" fill="#555">схема → плата → наладка</text>
+
+  <rect x="40" y="260" width="200" height="70" rx="8" fill="#f4efe6" stroke="#5c6874"/>
+  <text x="140" y="288" text-anchor="middle" font-weight="700" fill="#25323e">ИСПЫТАТЕЛЬНЫЙ СТЕНД</text>
+  <text x="140" y="304" text-anchor="middle" fill="#333">test_stand · 40×40 · машины испытаний</text>
+  <text x="140" y="319" text-anchor="middle" fill="#555">нагрузка → предел → усталость</text>
+
+  <rect x="300" y="270" width="200" height="70" rx="8" fill="#eaf6ee" stroke="#4f865d"/>
+  <text x="400" y="298" text-anchor="middle" font-weight="700" fill="#1f4f30">ИСПЫТАТЕЛЬНЫЙ ПОЛИГОН</text>
+  <text x="400" y="314" text-anchor="middle" fill="#333">test_range · 60×40 · открытая площадь</text>
+  <text x="400" y="329" text-anchor="middle" fill="#555">полевой опыт · мишени · траектория</text>
+
+  <rect x="300" y="380" width="320" height="34" rx="7" fill="#10324a"/>
+  <text x="460" y="402" text-anchor="middle" font-weight="700" fill="#ffffff">ХАБ ДАННЫХ И РЕЕСТРОВ (semester · videos · search)</text>
+</svg>
+<figcaption>Рис. 1 — Топология кампуса: 10 типовых моделей и единый хаб реестров</figcaption>
+</figure>
+
+<table>
+<tr><th>Модель</th><th>Метраж</th><th>Назначение</th><th>Ось координат в зале</th></tr>
+<tr><td>aud_math / lab_phys / lab_chem</td><td>30×30 / 30×40</td><td>базовые аудитории кафедр математики, физики, химии</td><td>x — вдоль доски, z — глубина, y — высота</td></tr>
+<tr><td>wood</td><td>30×30</td><td>кафедра фанеры: верстаки, ЧПУ, фанера-броня</td><td>— // —</td></tr>
+<tr><td>lab_rnd</td><td>30×40</td><td>НИР-лаборатория: научный цикл гипотеза→опыт</td><td>— // —</td></tr>
+<tr><td>bureau_okr</td><td>30×30</td><td>ОКР-бюро: чертёжные кульманы, прототипы</td><td>— // —</td></tr>
+<tr><td>machine_shop</td><td>40×30</td><td>машиностроительный цех: станочные ряды</td><td>— // —</td></tr>
+<tr><td>elec_shop</td><td>30×30</td><td>электро-радиомастерская: пайка, наладка</td><td>— // —</td></tr>
+<tr><td>test_stand</td><td>40×40</td><td>испытательный стенд: прочность, усталость</td><td>— // —</td></tr>
+<tr><td>cpc</td><td>40×40</td><td>центр коллективного пользования: общие приборы</td><td>— // —</td></tr>
+<tr><td>test_range</td><td>60×40</td><td>внешний полигон: полевые испытания (open)</td><td>— // —</td></tr>
+<tr><td>pilot_plant</td><td>30×30</td><td>опытное производство: малые партии и поделки</td><td>— // —</td></tr>
+<tr><td><b>uni_net</b></td><td><b>30×30</b></td><td><b>центр внешних связей: коммуникации с универами</b></td><td>— // —</td></tr>
+</table>
+
+<h2 class="pagebreak">3. Коммуникационный контур: от доски к читателю</h2>
+<p>Ядро коммуникаций — согласованный поток данных между слоями системы. Движок-помещение рисует зал, мазки ложатся на доску по координатам модели, сцены сессии уносят смысл, а реестры связывают зал, сессию и поиск.</p>
+
+<figure>
+<svg viewBox="0 0 920 300" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial" font-size="10">
+  <defs>
+    <marker id="a2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#2f7bb0"/></marker>
+  </defs>
+  <rect x="30" y="110" width="150" height="60" rx="8" fill="#eef5fc" stroke="#6d88b0"/>
+  <text x="105" y="138" text-anchor="middle" font-weight="700" fill="#10324a">1 · ЗАЛ (модель)</text>
+  <text x="105" y="155" text-anchor="middle" fill="#333">engine/auditorium.js</text>
+
+  <rect x="230" y="110" width="150" height="60" rx="8" fill="#eef7f0" stroke="#4f865d"/>
+  <text x="305" y="138" text-anchor="middle" font-weight="700" fill="#1f4f30">2 · МАЗКИ (доска)</text>
+  <text x="305" y="155" text-anchor="middle" fill="#333">strokes · kind: note/text/box…</text>
+
+  <rect x="430" y="110" width="150" height="60" rx="8" fill="#fdf3e0" stroke="#c4ae76"/>
+  <text x="505" y="138" text-anchor="middle" font-weight="700" fill="#6a4a10">3 · СЕССИЯ</text>
+  <text x="505" y="155" text-anchor="middle" fill="#333">sectioner · конспект · teacher</text>
+
+  <rect x="630" y="110" width="150" height="60" rx="8" fill="#f3ecf8" stroke="#8a5fb0"/>
+  <text x="705" y="138" text-anchor="middle" font-weight="700" fill="#4a2f6a">4 · РЕЕСТРЫ</text>
+  <text x="705" y="155" text-anchor="middle" fill="#333">semester · videos · field.html</text>
+
+  <rect x="440" y="225" width="200" height="50" rx="8" fill="#10324a"/>
+  <text x="540" y="247" text-anchor="middle" font-weight="700" fill="#fff">ПОИСК / ЧИТАТЕЛЬ</text>
+  <text x="540" y="263" text-anchor="middle" fill="#cfe">search.json · категории · теги</text>
+
+  <line x1="185" y1="140" x2="225" y2="140" stroke="#2f7bb0" stroke-width="2" marker-end="url(#a2)"/>
+  <line x1="385" y1="140" x2="425" y2="140" stroke="#2f7bb0" stroke-width="2" marker-end="url(#a2)"/>
+  <line x1="585" y1="140" x2="625" y2="140" stroke="#2f7bb0" stroke-width="2" marker-end="url(#a2)"/>
+  <line x1="705" y1="172" x2="570" y2="222" stroke="#2f7bb0" stroke-width="2" marker-end="url(#a2)"/>
+  <path d="M505 170 C 505 205, 480 205, 480 222" stroke="#888" stroke-width="1.4" fill="none" stroke-dasharray="3,3"/>
+  <text x="474" y="200" font-size="9" fill="#667">экспорт сценария</text>
+  <text x="640" y="196" font-size="9" fill="#667">агрегация</text>
+</svg>
+<figcaption>Рис. 2 — Поток данных: зал → мазки → сессия → реестр → поиск/читатель</figcaption>
+</figure>
+
+<div class="callout"><b>Правило согласованности</b>: движок <i>сам</i> выбирает зал по <code>room.model</code>, а QC-модуль проверяет, что каждая модель объявлена в реестре, имеет демо-сессию и покрытие категорий. Расхождение → «проблем» &gt; 0.</div>
+
+<h2>4. Внешние коммуникации и межуниверситетская сеть</h2>
+<p>Коммуникации университета не замыкаются на кампус. Выделяется контур внешних связей (модель <code>uni_net</code> — «центр внешних связей»), через который проходят обмены, совместные работы и сетевые программы.</p>
+
+<figure>
+<svg viewBox="0 0 920 340" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial" font-size="10">
+  <defs>
+    <marker id="a3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#2f7bb0"/></marker>
+  </defs>
+  <rect x="350" y="130" width="220" height="80" rx="10" fill="#10324a"/>
+  <text x="460" y="160" text-anchor="middle" font-weight="700" fill="#fff">НАШ УНИВЕРСИТЕТ</text>
+  <text x="460" y="178" text-anchor="middle" fill="#cfe">центр внешних связей (uni_net)</text>
+  <text x="460" y="196" text-anchor="middle" fill="#cfe">кафедры + реестры + хаб данных</text>
+
+  <rect x="30" y="40" width="200" height="60" rx="8" fill="#e8eefc" stroke="#6d88b0"/>
+  <text x="130" y="66" text-anchor="middle" font-weight="700" fill="#10324a">Университет А</text>
+  <text x="130" y="84" text-anchor="middle" fill="#333">обмен студентами · гостевые лекции</text>
+
+  <rect x="690" y="40" width="200" height="60" rx="8" fill="#e8eefc" stroke="#6d88b0"/>
+  <text x="790" y="66" text-anchor="middle" font-weight="700" fill="#10324a">Университет Б</text>
+  <text x="790" y="84" text-anchor="middle" fill="#333">сетевые программы · совместный курс</text>
+
+  <rect x="30" y="250" width="200" height="60" rx="8" fill="#e8eefc" stroke="#6d88b0"/>
+  <text x="130" y="276" text-anchor="middle" font-weight="700" fill="#10324a">Университет В</text>
+  <text x="130" y="294" text-anchor="middle" fill="#333">совместные НИР/ОКР</text>
+
+  <rect x="690" y="250" width="200" height="60" rx="8" fill="#e8eefc" stroke="#6d88b0"/>
+  <text x="790" y="276" text-anchor="middle" font-weight="700" fill="#10324a">Партнёр-прибор</text>
+  <text x="790" y="294" text-anchor="middle" fill="#333">общий доступ к оборудованию</text>
+
+  <line x1="235" y1="85" x2="345" y2="145" stroke="#2f7bb0" stroke-width="2" marker-end="url(#a3)"/>
+  <line x1="685" y1="85" x2="575" y2="145" stroke="#2f7bb0" stroke-width="2" marker-end="url(#a3)"/>
+  <line x1="235" y1="270" x2="345" y2="200" stroke="#2f7bb0" stroke-width="2" marker-end="url(#a3)"/>
+  <line x1="685" y1="270" x2="575" y2="200" stroke="#2f7bb0" stroke-width="2" marker-end="url(#a3)"/>
+
+  <text x="460" y="120" text-anchor="middle" font-size="9" fill="#667">двусторонний канал · протокол обмена</text>
+  <text x="460" y="240" text-anchor="middle" font-size="9" fill="#667">совместный результат публикуется вместе</text>
+</svg>
+<figcaption>Рис. 3 — Межуниверситетская сеть: каналы внешних коммуникаций через uni_net</figcaption>
+</figure>
+
+<table>
+<tr><th>Канал</th><th>Тип обмена</th><th>Цикл</th><th>Инструмент в кампусе</th></tr>
+<tr><td>Обмен студентами</td><td>образовательный</td><td>семестровый</td><td>sessions + field.html</td></tr>
+<tr><td>Гостевые лекции</td><td>образовательный</td><td>разовый</td><td>demo-session зала</td></tr>
+<tr><td>Совместные НИР/ОКР</td><td>научный</td><td>проектный</td><td>lab_rnd · bureau_okr · cpc</td></tr>
+<tr><td>Общий доступ к прибору</td><td>инфраструктурный</td><td>по записи</td><td>ЦКП (cpc)</td></tr>
+<tr><td>Сетевые программы/конференции</td><td>академический</td><td>периодический</td><td>uni_net · cinema</td></tr>
+</table>
+
+<h2 class="pagebreak">5. Реестры и контроль качества</h2>
+<p>Связность обеспечивают реестры, а полноту — встроенный QC-модуль. Общая схема контроля:</p>
+
+<figure>
+<svg viewBox="0 0 920 260" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial" font-size="10">
+  <defs>
+    <marker id="a4" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#2f7bb0"/></marker>
+  </defs>
+  <rect x="40" y="95" width="160" height="70" rx="8" fill="#eef5fc" stroke="#6d88b0"/>
+  <text x="120" y="122" text-anchor="middle" font-weight="700" fill="#10324a">semester.json</text>
+  <text x="120" y="139" text-anchor="middle" fill="#333">rooms · sessions · spec</text>
+  <text x="120" y="155" text-anchor="middle" fill="#555">расписание демо-залов</text>
+
+  <rect x="260" y="95" width="160" height="70" rx="8" fill="#fdf3e0" stroke="#c4ae76"/>
+  <text x="340" y="122" text-anchor="middle" font-weight="700" fill="#6a4a10">videos.js / ROOM_MODEL</text>
+  <text x="340" y="139" text-anchor="middle" fill="#333">зоны · камеры · вид</text>
+  <text x="340" y="155" text-anchor="middle" fill="#555">ракурсы каждого зала</text>
+
+  <rect x="480" y="95" width="160" height="70" rx="8" fill="#eaf6ee" stroke="#4f865d"/>
+  <text x="560" y="122" text-anchor="middle" font-weight="700" fill="#1f4f30">search.json</text>
+  <text x="560" y="139" text-anchor="middle" fill="#333">категории · теги · связи</text>
+  <text x="560" y="155" text-anchor="middle" fill="#555">🔗 связь · 🧭 маршрут · 🗣 вопрос</text>
+
+  <rect x="700" y="95" width="180" height="70" rx="8" fill="#f3ecf8" stroke="#8a5fb0"/>
+  <text x="790" y="122" text-anchor="middle" font-weight="700" fill="#4a2f6a">field.html</text>
+  <text x="790" y="139" text-anchor="middle" fill="#333">селектор охвата залов</text>
+  <text x="790" y="155" text-anchor="middle" fill="#555">демо-доступ читателя</text>
+
+  <rect x="330" y="205" width="260" height="40" rx="8" fill="#7a2436"/>
+  <text x="460" y="229" text-anchor="middle" font-weight="700" fill="#fff">QC-модуль: согласованность реестров</text>
+
+  <line x1="125" y1="165" x2="460" y2="203" stroke="#2f7bb0" stroke-width="2" marker-end="url(#a4)"/>
+  <line x1="345" y1="165" x2="460" y2="203" stroke="#2f7bb0" stroke-width="2" marker-end="url(#a4)"/>
+  <line x1="565" y1="165" x2="460" y2="205" stroke="#2f7bb0" stroke-width="2" marker-end="url(#a4)"/>
+  <line x1="770" y1="165" x2="500" y2="205" stroke="#2f7bb0" stroke-width="2" marker-end="url(#a4)"/>
+  <text x="460" y="66" text-anchor="middle" font-size="9" fill="#667">четыре реестра сходятся в единой проверке полноты</text>
+</svg>
+<figcaption>Рис. 4 — Реестры кампуса и единая точка контроля качества</figcaption>
+</figure>
+
+<figure>
+<svg viewBox="0 0 920 210" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial" font-size="10">
+  <defs>
+    <marker id="a5" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#2f7bb0"/></marker>
+  </defs>
+  <rect x="30" y="60" width="170" height="55" rx="8" fill="#eef5fc" stroke="#6d88b0"/>
+  <text x="115" y="84" text-anchor="middle" font-weight="700" fill="#10324a">Собрать данные</text>
+  <text x="115" y="100" text-anchor="middle" fill="#333">модель + мазки + сцены</text>
+
+  <rect x="250" y="60" width="170" height="55" rx="8" fill="#eef7f0" stroke="#4f865d"/>
+  <text x="335" y="84" text-anchor="middle" font-weight="700" fill="#1f4f30">Нормализовать</text>
+  <text x="335" y="100" text-anchor="middle" fill="#333">категории · теги · норм-текст</text>
+
+  <rect x="470" y="60" width="170" height="55" rx="8" fill="#fdf3e0" stroke="#c4ae76"/>
+  <text x="555" y="84" text-anchor="middle" font-weight="700" fill="#6a4a10">Связать</text>
+  <text x="555" y="100" text-anchor="middle" fill="#333">зал ↔ сессия ↔ категория</text>
+
+  <rect x="690" y="60" width="200" height="55" rx="8" fill="#f3ecf8" stroke="#8a5fb0"/>
+  <text x="790" y="84" text-anchor="middle" font-weight="700" fill="#4a2f6a">Проверить/опубликовать</text>
+  <text x="790" y="100" text-anchor="middle" fill="#333">QC · поиск · печать этого ИКД</text>
+
+  <line x1="205" y1="87" x2="245" y2="87" stroke="#2f7bb0" stroke-width="2" marker-end="url(#a5)"/>
+  <line x1="425" y1="87" x2="465" y2="87" stroke="#2f7bb0" stroke-width="2" marker-end="url(#a5)"/>
+  <line x1="645" y1="87" x2="685" y2="87" stroke="#2f7bb0" stroke-width="2" marker-end="url(#a5)"/>
+  <path d="M790 117 C 790 150, 460 150, 460 120" stroke="#7a2436" stroke-width="1.8" fill="none" stroke-dasharray="4,3" marker-end="url(#a5)"/>
+  <text x="640" y="146" font-size="9" fill="#7a2436">обратная связь → повторный цикл</text>
+</svg>
+<figcaption>Рис. 5 — Управленческий цикл подготовки и публикации контента</figcaption>
+</figure>
+
+<h2>6. Сводка обязательств ИКД</h2>
+<ul>
+  <li>каждой модели зала соответствует запись в реестре и минимум одна демо-сессия;</li>
+  <li>каждая категория охвата (НИР, ОКР, мастерская, испытательный, лаборатория, внешний, опытное производство, <b>внешние коммуникации</b>) представлена моделью;</li>
+  <li>центр внешних связей <code>uni_net</code> является точкой входа всех межуниверситетских коммуникаций;</li>
+  <li>QC-модуль не допускает публикацию при обнаруженных расхождениях (проблем = 0).</li>
+</ul>
+
+<div class="footer">Инфраструктурно-коммуникационная карта виртуального университета · v1.0 · сформировано автоматически из реестров кампуса (semester · videos · search · engine).</div>
+</div>
+</body>
+</html>
