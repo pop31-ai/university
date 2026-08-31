@@ -18,7 +18,8 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
-const SEMESTER = JSON.parse(fs.readFileSync(path.join(ROOT, 'plan', 'semester.json'), 'utf8'));
+const SEMESTER = JSON.parse(fs.readFileSync(
+  process.env.SEMESTER_OVERRIDE || path.join(ROOT, 'plan', 'semester.json'), 'utf8'));
 // тестируемое: реальный дашборд, либо переопределённый (DASH_OVERRIDE=путь) для негативных тестов
 const dashPath = process.env.DASH_OVERRIDE || path.join(ROOT, 'player', 'dashboard.html');
 const DASH = fs.readFileSync(dashPath, 'utf8');
@@ -114,6 +115,10 @@ if (hallBlock) {
   while ((hm = hre.exec(hallBlock[1])) !== null) hallNames[hm[1]] = hm[2];
 }
 
+// число недель в типовом месяце — берём из дашборда, чтобы держать в синхроне (по умолчанию 5)
+const mwMatch = script.match(/var MONTH_WEEKS\s*=\s*(\d+)/);
+const MONTH_WEEKS = mwMatch ? +mwMatch[1] : 5;
+
 // выполнить в текущей области видимости, чтобы document/fetch/location были видны
 const runner = new Function('document', 'fetch', 'URLSearchParams', 'location', script + '\n');
 runner(document, fetch, URLSearchParams, location);
@@ -127,6 +132,7 @@ function runAudit() {
   const ann = SEMESTER.announcements || [];
   const subjects = SEMESTER.subjects || {};
   const all = emitted.join('\n');
+  const plain = all.replace(/<[^>]*>/g, ' ').replace(/[ \t]+/g, ' '); // без разметки и лишних пробелов
 
   console.log('Перехвачено фрагментов вывода: ' + emitted.length);
   console.log('');
@@ -200,6 +206,40 @@ function runAudit() {
   if (annOk !== ann.length) { report('афиш выведено ' + annOk + ' вместо ' + ann.length); countsOk = false; }
   if (subjOk !== Object.keys(subjects).length) { report('ролей выведено ' + subjOk + ' вместо ' + Object.keys(subjects).length); countsOk = false; }
   if (countsOk) ok('счётчики совпадают (афиш=' + ann.length + ', залов=' + Object.keys(roomNames).length + ', ролей=' + Object.keys(subjects).length + ')');
+  console.log('');
+
+  // ---- 6) Повторяемость · месяц (маска недель + повторяемость по залам) ----
+  console.log('6) ПОВТОРЯЕМОСТЬ · МЕСЯЦ (недель в месяце: ' + MONTH_WEEKS + '):');
+  let mnOk = 0;
+  ann.forEach(function (a) {
+    const m = Array.isArray(a.monthWeeks) ? a.monthWeeks : [];
+    if (!m.length) { report('афиша ' + a.id + ': monthWeeks пустой'); return; }
+    for (let w = 0; w < m.length; w++) {
+      if (!Number.isInteger(m[w]) || m[w] < 1 || m[w] > MONTH_WEEKS) {
+        report('афиша ' + a.id + ': неделя вне 1..' + MONTH_WEEKS + ' (' + m[w] + ')');
+        return;
+      }
+    }
+    if (all.indexOf('data-ann="' + a.id + '"') < 0) {
+      report('афиша ' + a.id + ': строка повторяемости не выведена (нет data-ann)');
+      return;
+    }
+    mnOk++;
+  });
+  ok('маски недель корректны и строки выведены для ' + mnOk + '/' + ann.length + ' афиш');
+  let hallsMnOk = 0;
+  Object.keys(roomNames).forEach(function (rk) {
+    const total = ann.filter(function (a) { return a.room === rk; })
+      .reduce(function (t, a) {
+        const m = Array.isArray(a.monthWeeks) ? a.monthWeeks : [];
+        return t + (a.dur || 60) * m.length;
+      }, 0);
+    if (all.indexOf(total + ' мин «живого» времени в месяц') >= 0) hallsMnOk++;
+    else if (plain.indexOf(total + ' мин «живого» времени в месяц') >= 0) hallsMnOk++;
+    else report('зал ' + rk + ': месячный объём ' + total + ' мин не выведен в секции повторяемости');
+  });
+  ok('месячные объёмы залов совпадают ' + hallsMnOk + '/' + Object.keys(roomNames).length);
+  if (mnOk === ann.length && hallsMnOk === Object.keys(roomNames).length) ok('повторяемость по месяцам выведена ПОЛНОСТЬЮ и совпадает');
   console.log('');
 
   console.log((failures === 0

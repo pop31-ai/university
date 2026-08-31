@@ -1344,6 +1344,13 @@
       "subjects": [
         "student",
         "guest"
+      ],
+      "monthWeeks": [
+        1,
+        2,
+        3,
+        4,
+        5
       ]
     },
     {
@@ -1359,6 +1366,13 @@
       "subjects": [
         "student",
         "guest"
+      ],
+      "monthWeeks": [
+        1,
+        2,
+        3,
+        4,
+        5
       ]
     },
     {
@@ -1374,6 +1388,13 @@
       "subjects": [
         "student",
         "guest"
+      ],
+      "monthWeeks": [
+        1,
+        2,
+        3,
+        4,
+        5
       ]
     },
     {
@@ -1390,6 +1411,11 @@
         "student",
         "infra",
         "guest"
+      ],
+      "monthWeeks": [
+        1,
+        3,
+        5
       ]
     },
     {
@@ -1406,6 +1432,13 @@
         "student",
         "guest",
         "invited"
+      ],
+      "monthWeeks": [
+        1,
+        2,
+        3,
+        4,
+        5
       ]
     },
     {
@@ -1423,6 +1456,10 @@
         "guest",
         "invited",
         "staff"
+      ],
+      "monthWeeks": [
+        1,
+        3
       ]
     },
     {
@@ -1439,6 +1476,11 @@
         "student",
         "infra",
         "staff"
+      ],
+      "monthWeeks": [
+        1,
+        2,
+        4
       ]
     },
     {
@@ -1455,6 +1497,11 @@
         "student",
         "infra",
         "staff"
+      ],
+      "monthWeeks": [
+        1,
+        3,
+        5
       ]
     },
     {
@@ -1471,6 +1518,12 @@
         "student",
         "infra",
         "staff"
+      ],
+      "monthWeeks": [
+        1,
+        2,
+        3,
+        4
       ]
     },
     {
@@ -1487,6 +1540,10 @@
         "student",
         "infra",
         "staff"
+      ],
+      "monthWeeks": [
+        1,
+        3
       ]
     },
     {
@@ -1503,6 +1560,12 @@
         "student",
         "infra",
         "staff"
+      ],
+      "monthWeeks": [
+        1,
+        2,
+        4,
+        5
       ]
     },
     {
@@ -1519,6 +1582,13 @@
         "student",
         "infra",
         "staff"
+      ],
+      "monthWeeks": [
+        1,
+        2,
+        3,
+        4,
+        5
       ]
     },
     {
@@ -1535,6 +1605,10 @@
         "student",
         "infra",
         "staff"
+      ],
+      "monthWeeks": [
+        2,
+        4
       ]
     },
     {
@@ -1551,6 +1625,11 @@
         "student",
         "infra",
         "staff"
+      ],
+      "monthWeeks": [
+        2,
+        4,
+        5
       ]
     },
     {
@@ -1568,6 +1647,9 @@
         "external",
         "guest",
         "student"
+      ],
+      "monthWeeks": [
+        1
       ]
     }
   ]

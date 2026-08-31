@@ -97,7 +97,24 @@
                 border:1px solid var(--line)}
   .hallcal .seg.on{background:var(--teal);border-color:#5fbfb2}
   .hallcal .seg.lbl{flex:0 0 auto;border:none;background:none;color:var(--dim);
-                    font-size:10px;padding-right:4px;min-width:44px}
+                     font-size:10px;padding-right:4px;min-width:44px}
+  .mhall{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+         padding:10px 13px;margin-top:8px}
+  .mhall .hname{font-size:12px;color:var(--ink);margin-bottom:4px}
+  .mhall .hname b{color:var(--acc)}
+  .mgrid{display:flex;gap:3px;align-items:center;flex-wrap:wrap}
+  .mgrid .wcell{flex:1 0 12px;height:14px;border-radius:3px;background:var(--panel2);
+                border:1px solid var(--line)}
+  .mgrid .wcell.on{background:var(--teal);border-color:#5fbfb2}
+  .mgrid .wcell.warm{background:#4b8f86;border-color:#5fbfb2}
+  .mgrid .wlbl{flex:0 0 auto;border:none;background:none;color:var(--dim);
+               font-size:10px;padding-right:4px;min-width:52px}
+  .freqlbl{font-size:11px;color:var(--mut);margin-top:2px}
+  .mn{white-space:nowrap;font-family:Consolas,monospace;color:var(--time)}
+  .mweeks{display:flex;gap:3px;align-items:center}
+  .mweeks .wcell{flex:none;width:14px;height:12px;border-radius:3px;background:var(--panel2);
+                 border:1px solid var(--line)}
+  .mweeks .wcell.on{background:var(--teal);border-color:#5fbfb2}
 </style>
 </head>
 <body>
@@ -128,6 +145,9 @@
       <div class="calbody" id="calBody"></div>
       <div class="callegend" id="calLegend"></div>
     </div>
+
+    <h2>Повторяемость · месяц <span class="hint" id="mnHint"></span></h2>
+    <div id="mnWrap"></div>
 
     <h2>Загрузка кафедр и залов <span class="hint" id="loadHint"></span></h2>
     <div class="rooms" id="rooms"></div>
@@ -164,6 +184,7 @@
       uni_net:     { name:'Центр внешних связей · круглый стол · партнёры',cat:'Внешние связи', obj:1 }
     };
     var DAYORD = { 'пн':1,'вт':2,'ср':3,'чт':4,'пт':5,'сб':6,'вс':7 };
+    var MONTH_WEEKS = 5; // недель в типовом месяце: афиша повторяется в назначенных неделях
     var SUBJ_COLORS = {
       student:'#7fd7c9', invited:'#a8d5ff', guest:'#c9b8f0',
       infra:'#ff8a6a', staff:'#e8c97f', external:'#8fce7f'
@@ -315,6 +336,64 @@
         '<span><i style="background:#44b6a9"></i>2 и более залов занято</span>'+
         '<span><i style="background:#4b8f86"></i>1 зал занят</span>'+
         '<span><i style="background:#202a1f"></i>свободно</span>';
+
+      // ---- ПОВТОРЯЕМОСТЬ · МЕСЯЦ ----
+      // афиша описана как «типовая неделя» и повторяется в назначенных неделях месяца
+      // (monthWeeks: 1..MONTH_WEEKS). Здесь — сколько раз зал и каждая афиша заняты в месяц.
+      document.getElementById('mnHint').textContent =
+        '— афиша-типовая неделя повторяется в выбранных неделях месяца; полоска — в каких неделях (1–'+MONTH_WEEKS+')';
+
+      var mnWrap = document.getElementById('mnWrap');
+      mnWrap.innerHTML = '';
+
+      // (а) повторяемость по каждому залу: занятые часы в месяц и недельная полоска
+      var roomList = Object.keys(occ).sort();
+      roomList.forEach(function(room){
+        var hall = HALLS[room] || { name: room, cat: '—' };
+        var monthByWeek = []; // array indexed 1..MONTH_WEEKS of occupied minutes
+        for (var w=1; w<=MONTH_WEEKS; w++) monthByWeek[w]=0;
+        ann.forEach(function(a){
+          if (a.room!==room) return;
+          var mask = a.monthWeeks || [];
+          mask.forEach(function(w){
+            if (w>=1 && w<=MONTH_WEEKS) monthByWeek[w] += (a.dur||60);
+          });
+        });
+        var monthTotal = 0; for (var w2=1; w2<=MONTH_WEEKS; w2++) monthTotal += monthByWeek[w2];
+        // полоска: неделя занята, если в ней есть хоть одна минута
+        var strip='';
+        for (var w3=1; w3<=MONTH_WEEKS; w3++){
+          var on = monthByWeek[w3]>0;
+          strip += '<span class="wcell'+(on?' on':'')+'" title="неделя '+w3+(on?' · '+monthByWeek[w3]+' мин':' · свободна')+'"></span>';
+        }
+        var div=document.createElement('div'); div.className='mhall';
+        div.innerHTML =
+          '<div class="hname"><b>'+hall.name+'</b> · <span class="count">'+monthTotal+'</span> мин «живого» времени в месяц</div>'+
+          '<div class="mgrid"><span class="wlbl">занятые недели месяца</span>'+strip+'</div>'+
+          '<div class="freqlbl">'+roomList.filter(function(r){return r===room;}).length+' зал · '+
+            hall.cat+' · повторяется в '+monthByWeek.filter(function(m){return m>0;}).length+' из '+MONTH_WEEKS+' недель месяца</div>';
+        mnWrap.appendChild(div);
+      });
+
+      // (б) частота повторения каждой афиши в месяце
+      var mt=document.createElement('div'); mt.style.marginTop='14px';
+      var table='<table><thead><tr><th>Афиша</th><th>Зал</th><th>Когда</th><th>Повторов/мес</th><th>Недели месяца</th></tr></thead><tbody>';
+      sortAnn(ann).forEach(function(a){
+        var mask=a.monthWeeks||[];
+        var hall=HALLS[a.room]||{name:a.room};
+        var cells='';
+        for (var w=1; w<=MONTH_WEEKS; w++) cells+='<span class="wcell'+(mask.indexOf(w)>=0?' on':'')+'" title="неделя '+w+'"></span>';
+        table+='<tr data-ann="'+a.id+'">'+
+          '<td>'+a.title+'</td>'+
+          '<td>'+hall.name+'</td>'+
+          '<td class="mn">'+a.day+' · '+a.time+' · '+a.dur+'′</td>'+
+          '<td class="count">'+mask.length+'</td>'+
+          '<td><span class="mweeks">'+cells+'</span></td>'+
+          '</tr>';
+      });
+      table+='</tbody></table>';
+      mt.innerHTML=table;
+      mnWrap.appendChild(mt);
 
       // (б) занятость по каждому залу + свободные окна
       var roomsDiv2 = document.getElementById('rooms');
