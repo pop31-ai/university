@@ -66,6 +66,38 @@
   .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:middle}
   .note{color:var(--mut);font-size:12px;line-height:1.5;background:var(--panel);
         border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .calwrap{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+           padding:12px 14px;overflow-x:auto}
+  .calhead{display:flex;gap:2px;margin-bottom:6px}
+  .cal-corner{width:64px;flex:0 0 64px}
+  .cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;flex:1}
+  .cal-days div{text-align:center;font-size:11px;color:var(--gold);letter-spacing:.5px;
+                text-transform:uppercase;padding:3px 0}
+  .calbody{display:flex;gap:2px;flex-direction:column}
+  .cal-row{display:flex;gap:2px;align-items:center;margin-bottom:2px}
+  .cal-row .hlabel{width:64px;flex:0 0 64px;font-size:11px;color:var(--dim);
+                   text-align:right;padding-right:8px;font-family:Consolas,monospace}
+  .cal-row .hcell{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;flex:1}
+  .slot{height:20px;border-radius:4px;background:var(--panel2);border:1px solid var(--line);
+        cursor:pointer;position:relative}
+  .slot.free{background:var(--panel2)}
+  .slot.busy{background:var(--teal);border-color:#5fbfb2}
+  .slot.busy.some{background:#4b8f86}
+  .slot.busy.many{background:var(--teal)}
+  .slot:hover{border-color:var(--acc)}
+  .callegend{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px;font-size:11px;color:var(--mut)}
+  .callegend i{display:inline-block;width:14px;height:14px;border-radius:4px;margin-right:5px;
+               vertical-align:middle}
+  .hallcal{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+           padding:10px 13px;margin-top:10px}
+  .hallcal .hname{font-size:12px;color:var(--ink);margin-bottom:6px}
+  .hallcal .hname b{color:var(--acc)}
+  .hallcal .hgrid{display:flex;gap:3px;flex-wrap:wrap}
+  .hallcal .seg{flex:1 0 8px;height:14px;border-radius:3px;background:var(--panel2);
+                border:1px solid var(--line)}
+  .hallcal .seg.on{background:var(--teal);border-color:#5fbfb2}
+  .hallcal .seg.lbl{flex:0 0 auto;border:none;background:none;color:var(--dim);
+                    font-size:10px;padding-right:4px;min-width:44px}
 </style>
 </head>
 <body>
@@ -86,6 +118,16 @@
       </thead>
       <tbody id="annRows"></tbody>
     </table>
+
+    <h2>Занятость залов · неделя <span class="hint" id="calHint"></span></h2>
+    <div class="calwrap">
+      <div class="calhead">
+        <div class="cal-corner"></div>
+        <div class="cal-days" id="calDays"></div>
+      </div>
+      <div class="calbody" id="calBody"></div>
+      <div class="callegend" id="calLegend"></div>
+    </div>
 
     <h2>Загрузка кафедр и залов <span class="hint" id="loadHint"></span></h2>
     <div class="rooms" id="rooms"></div>
@@ -219,6 +261,93 @@
         });
       }
       renderRows('');
+
+      // ---- ЗАНЯТОСТЬ ЗАЛОВ: НЕДЕЛЯ ----
+      var CAL_DAYS = ['пн','вт','ср','чт','пт','сб','вс'];
+      var CAL_HOURS = [9,10,11,12,13,14,15,16,17,18]; // часовые слоты 9:00–18:00
+      // occ[room][day] = Set часов, занятых афишами
+      var occ = {};
+      ann.forEach(function(a){
+        var h = parseInt(a.time, 10);
+        if (!(a.room in occ)) occ[a.room] = {};
+        if (!(a.day in occ[a.room])) occ[a.room][a.day] = {};
+        var hh = 1;
+        if (a.dur) hh = Math.max(1, Math.ceil(a.dur / 60));
+        for (var k=0;k<hh;k++){ var hs=h+k; if (hs<=18) occ[a.room][a.day][hs]=1; }
+      });
+
+      document.getElementById('calHint').textContent =
+        '— наложение афиш по графе «день · час · длительность»; цвет — сколько залов занято в этот час';
+
+      // (а) загрузка кампуса по часам: сколько залов занято
+      var byHour = {}; // "day|hour" -> count
+      Object.keys(occ).forEach(function(room){
+        CAL_DAYS.forEach(function(d){
+          for (var h of CAL_HOURS){ if (occ[room][d] && occ[room][d][h]) byHour[d+'|'+h]=(byHour[d+'|'+h]||0)+1; }
+        });
+      });
+
+      var daysHead = document.getElementById('calDays');
+      daysHead.innerHTML = '';
+      CAL_DAYS.forEach(function(d){ var e=document.createElement('div'); e.textContent=d; daysHead.appendChild(e); });
+
+      var calBody = document.getElementById('calBody');
+      calBody.innerHTML = '';
+      CAL_HOURS.forEach(function(hour){
+        var row=document.createElement('div'); row.className='cal-row';
+        var lab=document.createElement('div'); lab.className='hlabel'; lab.textContent=('0'+hour).slice(-2)+':00';
+        row.appendChild(lab);
+        var cells=document.createElement('div'); cells.className='hcell';
+        CAL_DAYS.forEach(function(d){
+          var c=document.createElement('div'); c.className='slot';
+          var n=byHour[d+'|'+hour]||0;
+          if (n===0) c.className='slot free';
+          else if (n===1) { c.className='slot busy some'; c.title='1 зал занят · '+d+' '+('0'+hour).slice(-2)+':00'; c.textContent='1'; }
+          else { c.className='slot busy many'; c.title=n+' залов занято · '+d+' '+('0'+hour).slice(-2)+':00'; c.textContent=n; }
+          cells.appendChild(c);
+        });
+        row.appendChild(cells);
+        calBody.appendChild(row);
+      });
+
+      var legend=document.getElementById('calLegend');
+      legend.innerHTML =
+        '<span><i style="background:#44b6a9"></i>2 и более залов занято</span>'+
+        '<span><i style="background:#4b8f86"></i>1 зал занят</span>'+
+        '<span><i style="background:#202a1f"></i>свободно</span>';
+
+      // (б) занятость по каждому залу + свободные окна
+      var roomsDiv2 = document.getElementById('rooms');
+      Object.keys(occ).sort().forEach(function(room){
+        var hall = HALLS[room] || { name: room, cat: '—' };
+        // свободные (незанятые) часовые окна по дням
+        var freeWin = '';
+        var busyTotal = 0;
+        CAL_DAYS.forEach(function(d){
+          var busySet = occ[room][d] || {};
+          var run=null, wins=[];
+          for (var h of CAL_HOURS){
+            if (!busySet[h]){ if (run){ if(h-run[1]===1) run[1]=h; else { wins.push(run); run=[h,h]; } } else run=[h,h]; }
+            else { busyTotal++; if (run){ wins.push(run); run=null; } }
+          }
+          if (run) wins.push(run);
+          if (wins.length) freeWin += ' <b>'+d+'</b>: ' + wins.map(function(w){ return ('0'+w[0]).slice(-2)+':00'+(w[1]!==w[0]?'–'+('0'+w[1]).slice(-2)+':00':''); }).join(', ');
+        });
+        roomsDiv2.insertAdjacentHTML('afterbegin',
+          '<div class="hallcal" data-room="'+room+'"><div class="hname"><b>'+hall.name+'</b> · занято '+
+          busyTotal+' ч/нед, свободно '+(CAL_HOURS.length*CAL_DAYS.length-busyTotal)+' ч</div>'+
+          '<div class="hgrid"><span class="seg lbl">занятость по дням</span>'+
+          CAL_DAYS.map(function(d){
+            var bs=occ[room][d]||{};
+            var nBusy=CAL_HOURS.filter(function(h){return bs[h];}).length;
+            var on=Math.round(6*nBusy/CAL_HOURS.length);
+            var segs='';
+            for(var i=0;i<6;i++) segs+='<span class="seg'+(i<on?' on':'')+'" title="'+d+' · занято '+nBusy+' ч"></span>';
+            return '<span style="display:flex;gap:2px" title="'+d+'">'+segs+'</span>';
+          }).join('')+
+          '</div><div style="font-size:11px;color:var(--mut);margin-top:4px">свободные окна:'+
+          (freeWin || ' — нет (зал загружен весь день)' )+'</div></div>');
+      });
 
       // ---- Загрузка залов ----
       var loadHint = document.getElementById('loadHint');
