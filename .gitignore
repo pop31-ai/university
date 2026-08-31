@@ -15,3 +15,8 @@ articles/CORRESPONDENCE.md
 articles/correspondence.json
 articles/_old/
 
+# Python (генераторы отчётов)
+__pycache__/
+*.pyc
+
+
