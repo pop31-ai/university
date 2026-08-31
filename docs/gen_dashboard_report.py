@@ -198,6 +198,22 @@ def main():
            esc(a["day"]), esc(a["time"]), a["dur"], len(weeks_map.get(a["id"], [])))
         for a in sort_ann(ann))
 
+    # ---- месячный календарь: по неделям месяца, что и где идёт ----
+    def week_cell(w):
+        items = [a for a in ann if w in (a.get("monthWeeks") or [])]
+        items = sorted(items, key=lambda a: (DAY_ORDER.get(a.get("day"), 9), a.get("time", "")))
+        lis = "".join(
+            "<div style='margin-bottom:1.5mm;padding-bottom:1.5mm;border-bottom:0.4pt solid #d8e0ec'>"
+            "<b>%s</b> · %s %s (%s′)<br>"
+            "<span style='color:#556;font-size:8.5pt'>%s</span></div>"
+            % (esc(halls.get(a["room"], a["room"])), esc(a["day"]), esc(a["time"]),
+               a["dur"], esc(a.get("title", a.get("session"))))
+            for a in items)
+        return ("<td style='vertical-align:top;width:20%%'>"
+                "<div style='font-weight:700;color:#10324a;margin-bottom:2mm'>Неделя %d · %d афиш</div>%s</td>"
+                % (w, len(items), (lis if lis else "<span style='color:#889'>—</span>")))
+    cal_row = "<tr>%s</tr>" % "".join(week_cell(w) for w in months)
+
     # ---- контингент ----
     subj_usage = {}
     for a in ann:
@@ -231,12 +247,17 @@ def main():
         "mn_legendmidx": midx,
         "mn_rows": mn_rows,
         "fmt_rows": fmt_rows,
+        "cal_row": cal_row,
         "cont_rows": cont_rows,
         "n_ann": str(len(ann)),
         "n_halls": str(len(hall_keys)),
         "n_subj": str(len(subjects)),
     }.items():
         html = html.replace("@@%s@@" % key, val)
+
+    if "@@" in html:
+        raise RuntimeError("в шаблоне остались незаменённые токены: " +
+                           ", ".join(sorted(set(__import__("re").findall(r"@@([\w]+)@@", html)))))
 
     with open(OUT_HTML, "w", encoding="utf-8") as f:
         f.write(html)
@@ -338,7 +359,13 @@ HTML_TMPL = """<!DOCTYPE html>
   <tbody>@@fmt_rows@@</tbody>
 </table>
 
-<h2>5. Контингент университета</h2>
+<h2 class="pagebreak">5. Месячный календарь афиш</h2>
+<p>Что и где идёт в каждой неделе типового месяца (зал · день · время · длительность):</p>
+<table>
+  <tbody>@@cal_row@@</tbody>
+</table>
+
+<h2>6. Контингент университета</h2>
 <table>
   <thead><tr><th>Роль</th><th>Название</th><th>Афиш</th></tr></thead>
   <tbody>@@cont_rows@@</tbody>
