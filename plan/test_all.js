@@ -50,6 +50,10 @@ addStep('Синхронизация · plan/check_sync.js', node, ['plan/check_s
 // 4) Полнота вывода дашборда
 addStep('Аудит дашборда · plan/dash_audit.js', node, ['plan/dash_audit.js']);
 
+// 5) Свежесть PDF-отчёта (html/pdf не старше источников)
+addStep('Свежесть PDF-отчёта · docs/check_report_fresh.py',
+  process.env.PYTHON || 'python', ['docs/check_report_fresh.py']);
+
 // ----------------------------------------------------------------
 // Прогон
 // ----------------------------------------------------------------
